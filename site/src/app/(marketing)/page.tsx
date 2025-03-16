@@ -15,7 +15,7 @@ import {
   IconFileDollar,
   IconTimeline,
 } from "@tabler/icons-react";
-import { TrendingUp, BarChart3 } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 export default function LandingPage() {
   const words = [

@@ -1,5 +1,3 @@
-import { Navbar } from "./_components/navbar";
-
 export default function LandingPageLayout({
   children,
 }: {
@@ -7,7 +5,6 @@ export default function LandingPageLayout({
 }) {
   return (
     <div className="min-h-screen   bg-gradient-to-b from-background to-secondary/5 ">
-      <Navbar />
       {children}
     </div>
   );
