@@ -7,43 +7,77 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 import { TrendingUp, DollarSign, BarChart3 } from "lucide-react";
 import Link from "next/link";
 export default function LandingPage() {
+  const words = [
+    {
+      text: "Trade",
+    },
+    {
+      text: "Stocks",
+    },
+    {
+      text: "with",
+    },
+    {
+      text: "Crypto",
+      className: "text-primary",
+    },
+    {
+      text: "or",
+    },
+    {
+      text: "Mobile",
+      className: "text-primary",
+    },
+    {
+      text: "Money",
+      className: "text-primary",
+    },
+  ];
   return (
-    <div className="px-8  ">
+    <div className="px-8  grid justify-items-center ">
       {/* Hero Section */}
-      <section className=" pt-20 pb-12 md:pt-40 md:pb-20">
-        <div className="grid gap-8 md:grid-cols-2 items-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+      <section className=" pt-32 pb-12 md:pt-56 md:pb-20">
+        <div className="grid gap-8   items-center">
+          <div className="space-y-6 w-full ">
+            <h1 className="text-4xl  md:hidden font-bold tracking-tight">
               Trade Stocks with <span className="text-primary">Crypto</span> or{" "}
               <span className="text-primary">Mobile Money</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <TypewriterEffectSmooth
+              words={words}
+              className="font-bold text-5xl hidden md:flex tracking-tight flex-wrap"
+              cursorClassName="bg-primary my-auto"
+            />
+            <p className="text-lg justify-self-center md:text-xl lg:text-2xl text-muted-foreground md:max-w-5xl text-center ">
               Connect your Orion wallet and start investing in stocks using ETH
               or mobile payments. Track your portfolio and sell when you're
               ready.
             </p>
-            <div className="space-x-4">
-              <Button size="lg" asChild>
+            <div className="flex gap-4 flex-col md:flex-row justify-self-center">
+              <Button
+                size="lg"
+                asChild
+                className="w-64 h-12 text-lg  font-semibold"
+              >
                 <Link href="/marketplace">
-                  <TrendingUp className="mr-2 h-5 w-5" /> Explore Stocks
+                  <TrendingUp className="mr-2 h-6 w-6" /> Explore Stocks
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-64 h-12 text-lg  font-semibold"
+                asChild
+              >
                 <Link href="/dashboard">
-                  <BarChart3 className="mr-2 h-5 w-5" /> Dashboard
+                  <BarChart3 className="mr-2 h-6 w-6" /> Dashboard
                 </Link>
               </Button>
             </div>
-          </div>
-          <div className="hidden md:flex justify-center">
-            <img
-              src="/placeholder.svg"
-              alt="Trading Platform"
-              className="w-full max-w-md rounded-lg shadow-lg"
-            />
           </div>
         </div>
       </section>

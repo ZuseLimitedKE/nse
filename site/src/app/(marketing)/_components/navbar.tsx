@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
+import { Sparkles } from "lucide-react";
 export function Navbar() {
   const [walletConnected, setWalletConnected] = useState(false);
 
@@ -18,10 +18,10 @@ export function Navbar() {
       <div className=" flex h-16 items-center justify-between  w-full ">
         <div className="flex items-center justify-between ">
           <div className="flex items-center gap-2">
-            <div className="rounded-full bg-primary w-8 h-8 flex items-center justify-center text-white font-bold">
-              O
+            <div className="rounded-full bg-primary w-10 h-10 flex items-center justify-center text-white font-bold">
+              <Sparkles />
             </div>
-            <div className="text-lg font-semibold">Orion Trading</div>
+            <div className="md:text-2xl text-xl font-semibold">ORION</div>
           </div>
         </div>
 
