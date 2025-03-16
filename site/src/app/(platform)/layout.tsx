@@ -1,4 +1,5 @@
 import { PlatformSidebar } from "@/components/platform-sidebar";
+import { Navbar } from "../(marketing)/_components/navbar";
 
 export default function PlatformLayout({
   children,
@@ -6,9 +7,11 @@ export default function PlatformLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex w-full">
-      <PlatformSidebar />
-      {children}
-    </main>
+    <>
+      <main className="flex w-full">
+        <PlatformSidebar />
+        {children}
+      </main>
+    </>
   );
 }
