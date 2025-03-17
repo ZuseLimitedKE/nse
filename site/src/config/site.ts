@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Orion Trading",
+  name: "Orion",
   description:
-    "Orion is a stock trading platform that let's you trade stocks with nobile money or crypto",
+    "Orion is a stock trading platform that let's you trade stocks with mobile money or crypto",
 };
