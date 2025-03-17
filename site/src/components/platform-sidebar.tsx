@@ -55,7 +55,7 @@ export function PlatformSidebar() {
           <div>
             <SidebarLink
               link={{
-                label: "username",
+                label: "Guest",
                 href: "#",
                 icon: (
                   <Image

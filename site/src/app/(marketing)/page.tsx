@@ -67,7 +67,7 @@ export default function LandingPage() {
             />
             <p className="text-lg justify-self-center md:text-xl lg:text-2xl text-muted-foreground md:max-w-5xl  text-left md:text-center ">
               Connect your Orion wallet and start investing in stocks using ETH
-              or mobile payments. Track your portfolio and sell when you're
+              or mobile payments. Track your portfolio and sell when you&apos;re
               ready.
             </p>
             <div className="flex gap-4 flex-col md:flex-row justify-self-center">
