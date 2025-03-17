@@ -51,9 +51,8 @@ export default function LandingPage() {
   return (
     <div className="relative  grid justify-items-center ">
       <BackgroundBeams />
-
-      {/* Hero Section */}
-      <section className="pt-32 px-8 relative pb-12 md:pt-64 lg:h-screen md:pb-20">
+      {/* Hero Section */}{" "}
+      <section className="pt-32 px-8  w-full relative pb-12 md:pt-56 lg:h-screen md:pb-20">
         <div className="grid gap-8   items-center">
           <div className="space-y-6 w-full ">
             <h1 className="text-4xl  md:hidden my-auto max-w-xl font-bold tracking-tight">
@@ -62,15 +61,15 @@ export default function LandingPage() {
             </h1>
             <TypewriterEffectSmooth
               words={words}
-              className="font-bold text-5xl hidden md:flex tracking-tight flex-wrap"
+              className="font-bold  flex justify-center  text-5xl hidden md:flex tracking-tight flex-wrap"
               cursorClassName="bg-primary my-auto"
             />
-            <p className="text-lg justify-self-center md:text-xl lg:text-2xl text-muted-foreground md:max-w-5xl  text-left md:text-center ">
+            <p className="text-lg mx-auto  md:text-xl lg:text-2xl text-muted-foreground md:max-w-5xl  text-left md:text-center ">
               Connect your Orion wallet and start investing in stocks using ETH
               or mobile payments. Track your portfolio and sell when you&apos;re
               ready.
             </p>
-            <div className="flex gap-4 flex-col md:flex-row justify-self-center">
+            <div className="md:flex gap-4  justify-center items-center grid">
               <Button
                 size="lg"
                 asChild
@@ -94,7 +93,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section className=" z-50 py-12 md:py-20 px-8">
         <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-center mb-12">
