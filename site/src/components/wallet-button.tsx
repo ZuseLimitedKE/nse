@@ -47,7 +47,7 @@ export const WalletButton = () => {
           variant="outline"
           size="sm"
           onClick={handleConnect}
-          className="ml-4"
+          className="ml-4 cursor-pointer"
         >
           <IconWallet className="mr-2 h-4 w-4" /> Connect Wallet
         </Button>
@@ -56,7 +56,7 @@ export const WalletButton = () => {
           variant="outline"
           size="sm"
           onClick={handleDisconnect}
-          className="ml-4"
+          className="ml-4 cursor-pointer"
         >
           <IconWallet className="mr-2 h-4 w-4" /> Disconnect Wallet
         </Button>

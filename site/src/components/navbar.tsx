@@ -1,5 +1,4 @@
 "use client";
-import { Sparkles } from "lucide-react";
 import { WalletButton } from "@/components/wallet-button";
 import Image from "next/image";
 export function Navbar() {
