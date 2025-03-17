@@ -2,11 +2,11 @@
 import {
   useDisconnect,
   useAppKit,
-  useAppKitNetwork,
+  // useAppKitNetwork,
   useAppKitAccount,
 } from "@reown/appkit/react";
 import { Button } from "./ui/button";
-import { networks } from "@/config";
+// import { networks } from "@/config";
 import { toast } from "sonner";
 import { IconWallet } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
@@ -14,13 +14,12 @@ import { useEffect, useRef } from "react";
 export const WalletButton = () => {
   const { disconnect } = useDisconnect();
   const { open } = useAppKit();
-  const { switchNetwork } = useAppKitNetwork();
+  // const { switchNetwork } = useAppKitNetwork();
   const { isConnected } = useAppKitAccount();
   const prevConnectedRef = useRef(false);
 
   // Effect to detect when connection state changes from false to true
   useEffect(() => {
-    console.log("use effect ran");
     if (isConnected && !prevConnectedRef.current) {
       toast.success("Successfully connected to wallet");
     }
