@@ -1,5 +1,4 @@
-"use server"
-import "../../envConfig.js";
+import "../../envConfig.ts";
 import {MongoClient, ServerApiVersion} from "mongodb";
 const client = new MongoClient(process.env.CONN_STRING, {
     serverApi: {
