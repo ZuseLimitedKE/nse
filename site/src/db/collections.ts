@@ -10,7 +10,7 @@ export interface STOCKS {
     name: string,
     todayPrice: number,
     tokenAddress: string,
-    stockID: string | undefined
+    stockID?: string
 }
 
 // Collections
