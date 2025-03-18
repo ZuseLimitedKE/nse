@@ -6,6 +6,7 @@ import "./globals.css";
 import AppKitProvider from "@/context/appkit";
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
+import TanstackProvider from "@/context/tanstack";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -29,10 +30,12 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${plusJakartaSans.className} antialiased`}>
-        <AppKitProvider cookies={cookies}>
-          <Navbar />
-          {children}
-        </AppKitProvider>
+        <TanstackProvider>
+          <AppKitProvider cookies={cookies}>
+            <Navbar />
+            {children}
+          </AppKitProvider>
+        </TanstackProvider>
         <Toaster richColors />
       </body>
     </html>
