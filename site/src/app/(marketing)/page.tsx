@@ -94,7 +94,7 @@ export default function LandingPage() {
         </div>
       </section>
       {/* Features Section */}
-      <section className=" z-50 py-12 md:py-20 px-8">
+      <section className=" z-20 py-12 md:py-20 px-8">
         <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-center mb-12">
           How It Works
         </h2>
