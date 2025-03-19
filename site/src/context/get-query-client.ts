@@ -5,7 +5,7 @@ function makeQueryClient() {
       queries: {
         // Since we're using SSR The stale time has to
         // be greater than O to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
+        staleTime: 5 * 1000,
       },
     },
   });
