@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function AuthRouter() {
   const router = useRouter();
@@ -24,7 +25,10 @@ export default function AuthRouter() {
 
   return (
     <div className="min-h-screen flex justify-center items-center">
-      Redirecting...
+      <div className="flex items-center gap-1">
+        <Spinner />
+        Redirecting
+      </div>
     </div>
   );
 }
