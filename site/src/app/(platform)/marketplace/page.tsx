@@ -11,9 +11,7 @@ export default async function MarketPlacePage() {
   });
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="w-full mt-24 ml-4">
-        <Stocks />
-      </div>
+      <Stocks />
     </HydrationBoundary>
   );
 }
