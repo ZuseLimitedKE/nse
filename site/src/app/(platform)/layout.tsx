@@ -7,9 +7,9 @@ export default function PlatformLayout({
 }) {
   return (
     <>
-      <main className="flex w-full">
+      <main className="flex w-full relative">
         <PlatformSidebar />
-        {children}
+        <div className="md:ml-12 mt-20 w-full">{children}</div>
       </main>
     </>
   );

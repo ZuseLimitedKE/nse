@@ -7,7 +7,8 @@ import AppKitProvider from "@/context/appkit";
 import { Navbar } from "@/components/navbar";
 import { siteConfig } from "@/config/site";
 import TanstackProvider from "@/context/tanstack";
-
+import { ClerkProvider } from "@clerk/nextjs";
+import { AdminKeyBoardShortcut } from "@/components/admin-shortcut";
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
   subsets: ["vietnamese"],
@@ -28,16 +29,19 @@ export default async function RootLayout({
   const headersData = await headers();
   const cookies = headersData.get("cookies");
   return (
-    <html lang="en">
-      <body className={`${plusJakartaSans.className} antialiased`}>
-        <TanstackProvider>
-          <AppKitProvider cookies={cookies}>
-            <Navbar />
-            {children}
-          </AppKitProvider>
-        </TanstackProvider>
-        <Toaster richColors />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${plusJakartaSans.className} antialiased`}>
+          <TanstackProvider>
+            <AppKitProvider cookies={cookies}>
+              <Navbar />
+              {children}
+              <AdminKeyBoardShortcut />
+            </AppKitProvider>
+          </TanstackProvider>
+          <Toaster richColors />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

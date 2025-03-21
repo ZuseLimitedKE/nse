@@ -6,12 +6,20 @@ import {
   IconBrandTabler,
   IconSettings,
   IconSocial,
+  IconUserExclamation,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 export function PlatformSidebar() {
+  const { user } = useUser();
+  const adminLink = {
+    label: "Admin Panel",
+    href: "/admin",
+    icon: <IconUserExclamation className="h-5 w-5 shrink-0" />,
+  };
   const links = [
     {
       label: "Dashboard",
@@ -28,6 +36,7 @@ export function PlatformSidebar() {
       href: "/settings",
       icon: <IconSettings className="h-5 w-5 shrink-0" />,
     },
+
     {
       label: "Logout",
       href: "/",
@@ -46,7 +55,12 @@ export function PlatformSidebar() {
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {open ? <Logo /> : <LogoIcon />}
+
             <div className="mt-8 flex flex-col gap-2">
+              {/*admin link*/}
+              {user?.publicMetadata?.role === "admin" && (
+                <SidebarLink link={adminLink} />
+              )}
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}

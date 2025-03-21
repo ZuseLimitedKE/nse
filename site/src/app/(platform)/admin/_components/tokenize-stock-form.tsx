@@ -1,0 +1,160 @@
+"use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { toast } from "sonner";
+
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { IconSwitch, IconFlagBitcoin } from "@tabler/icons-react";
+import { useState } from "react";
+
+// Define the form schema with Zod
+const stockFormSchema = z.object({
+  symbol: z
+    .string()
+    .min(1, "Symbol is required")
+    .max(10, "Symbol must be 10 characters or less")
+    .toUpperCase(),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be 100 characters or less"),
+  identifier: z
+    .string()
+    .min(3, "Identifier must be at least 3 characters")
+    .max(50, "Identifier must be 50 characters or less"),
+});
+
+// Defines the form value type from the schema
+type StockFormValues = z.infer<typeof stockFormSchema>;
+
+// Default values for the form
+const defaultValues: Partial<StockFormValues> = {
+  symbol: "",
+  name: "",
+  identifier: "",
+};
+
+export const TokenizeStockForm = () => {
+  // Initialize the form
+  const form = useForm<StockFormValues>({
+    resolver: zodResolver(stockFormSchema),
+    defaultValues,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Handle form submission
+  async function onSubmit(data: StockFormValues) {
+    setIsSubmitting(true);
+    try {
+      console.log("Stock tokenization data:", data);
+      //TODO: Call Server Action/endpoint
+      // Show success message
+      toast.success(
+        `Stock tokenized successfully:${data.name} (${data.symbol}) has been added to the marketplace.`,
+      );
+
+      // Reset the form
+      form.reset();
+    } catch (error) {
+      toast.error("Error:unable to tokenize the entry");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="container max-w-3xl px-4 py-2 justify-self-center">
+      <div className="mb-4 flex items-center gap-2">
+        <IconSwitch className="h-6 w-6 text-primary" />
+        <h1 className="text-2xl font-bold">Stock Tokenization</h1>
+      </div>
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle>Tokenize New Stock</CardTitle>
+          <CardDescription>
+            Add a new stock to the marketplace by filling out the details below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="symbol"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock Symbol</FormLabel>
+                    <FormControl>
+                      <Input placeholder="AAPL" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the stock ticker symbol (e.g., AAPL for Apple Inc.)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Apple Inc." {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the full name of the company
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="identifier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Unique Identifier</FormLabel>
+                    <FormControl>
+                      <Input placeholder="apple-inc-2023" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      A unique identifier for this tokenized stock
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full font-semibold md:w-auto">
+                <IconFlagBitcoin className="mr-1 h-4 w-4" strokeWidth={2} />
+                {isSubmitting ? "Tokenizing" : "Tokenize Stock"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
