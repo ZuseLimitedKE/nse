@@ -23,7 +23,8 @@ import { ChartContainer } from "@/components/ui/chart";
 import { Input } from "@/components/ui/input";
 import { Wallet, BarChart3, DollarSign, ArrowUp, ArrowDown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-// import { toast } from "@/hooks/use-toast";
+ import { toast } from "@/hooks/use-toast";
+//import { toast } from "react-toastify";
 
 // Mock data for portfolio
 const mockPortfolio = [
@@ -58,14 +59,14 @@ const DashBoardPage = () => {
   
   const handleSell = () => {
     // This would be replaced with actual sell logic
-    // toast({
-    //   title: "Sale Successful",
-    //   description: `You sold ${sellQuantity} shares of ${selectedStock.symbol}. Payment sent via ${paymentMethod === "mobile" ? "mobile money" : "ETH"}`,
-    // });
+    toast({
+      title: "Sale Successful",
+      description: `You sold ${sellQuantity} shares of ${selectedStock.symbol}. Payment sent via ${paymentMethod === "mobile" ? "mobile money" : "ETH"}`,
+    });
   };
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 mx-5">
       <h1 className="text-3xl font-bold mb-8">Your Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
