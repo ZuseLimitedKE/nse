@@ -1,21 +1,19 @@
 "use server";
-import { SmartContract } from "@/contract";
 import { Errors, MyError } from "@/constants/errors";
-import { MyDatabase } from "@/db";
 import { TokenizeStock } from "@/constants/types";
 import { revalidatePath } from "next/cache";
+import smartContract from "@/contract";
+import database from "@/db";
 
 export async function createStock(
   args: TokenizeStock,
-  database: MyDatabase,
-  smarContract: SmartContract,
 ) {
   try {
     // TODO: Function to get current stock price
     const todayPrice = 100;
 
     // Create stock in smart contract
-    const tokenAddress = await smarContract.createStockToken({
+    const tokenAddress = await smartContract.createStockToken({
       symbol: args.symbol,
       name: args.name,
     });
