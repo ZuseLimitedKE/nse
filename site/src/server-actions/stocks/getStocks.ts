@@ -3,14 +3,8 @@ import { Errors, MyError } from "@/constants/errors";
 import database from "@/db";
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { StockData } from "@/types";
 
-interface StockData {
-  id: string;
-  symbol: string;
-  name: string;
-  price: number;
-  change: number;
-}
 export async function getStocks(): Promise<StockData[]> {
   try {
     // Get stocks listed in database

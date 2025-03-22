@@ -11,8 +11,12 @@ export default async function MarketPlacePage() {
   // const stocks = await getStocks();
   // console.log(stocks);
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Stocks /*stocks={stocks}*/ />
-    </HydrationBoundary>
+    <div className=" px-4 md:px-8 lg:px-16 mx-auto mb-4">
+      <h1 className=" text-2xl font-bold mt-6 mb-2">Marketplace</h1>
+
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Stocks /*stocks={stocks}*/ />
+      </HydrationBoundary>
+    </div>
   );
 }

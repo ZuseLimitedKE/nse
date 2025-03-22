@@ -2,6 +2,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { getStocks } from "@/server-actions/stocks/getStocks";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
 // import { usePolling } from "@/hooks/usePolling";
 interface Stocks {
   id: string;
@@ -28,16 +30,8 @@ export function Stocks(/*{ stocks }: { stocks: Stocks[] }*/) {
   }
   // usePolling(15000);
   return (
-    <div className="w-full grid  justify-between">
-      {stocks?.map((stock, index) => (
-        <div className="" key={index}>
-          {stock.id}
-          {stock.change}
-          {stock.price}
-          {stock.name}
-          {stock.symbol}
-        </div>
-      ))}
+    <div className="">
+      {stocks && <DataTable columns={columns} data={stocks} />}
     </div>
   );
 }
