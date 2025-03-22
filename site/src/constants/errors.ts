@@ -13,5 +13,6 @@ export enum Errors {
     INVALID_SYMBOL = "Stock symbol must be a string",
     INVALID_NAME = "Stock name must be a string",
     INVALID_STOCK_ID = "Stock id must be a string",
-    NOT_GET_STOCKS = "Could not get stocks"
+    NOT_GET_STOCKS = "Could not get stocks",
+    NOT_GET_STOCKS_DB = "Could not get stocks from db"
 }
