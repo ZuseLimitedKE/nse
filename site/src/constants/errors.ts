@@ -16,4 +16,5 @@ export enum Errors {
     NOT_GET_STOCKS = "Could not get stocks",
     NOT_GET_STOCKS_DB = "Could not get stocks from db",
     NOT_GET_STOCK_PRICES = "Could not get stock prices",
+    NOT_GET_SAFARICOM_TOKEN = "Could not get access token from safaricom"
 }
