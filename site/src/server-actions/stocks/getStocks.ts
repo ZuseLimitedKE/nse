@@ -8,23 +8,32 @@ import { StockData } from "@/types";
 export async function getStocks(): Promise<StockData[]> {
   try {
     // Get stocks listed in database
-    const stocks: StockData[] = [];
+    // const stocks: StockData[] = [];
     const dbStocks = await database.getStocks();
 
     const stockPrices = await getStockPrices();
     // Get price and change of each
-    dbStocks.map((s) => {
-      const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
+    // dbStocks.map((s) => {
+    //   const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
+    //
+    //   stocks.push({
+    //     id: s.id,
+    //     symbol: s.symbol,
+    //     name: s.name,
+    //     price: entry?.price ?? 0.0,
+    //     change: entry?.change ?? 0.0,
+    //   });
+    // });
+    const priceMap = new Map(stockPrices.map((s) => [s.symbol, s]));
 
-      stocks.push({
-        id: s.id,
-        symbol: s.symbol,
-        name: s.name,
-        price: entry?.price ?? 0.0,
-        change: entry?.change ?? 0.0,
-      });
-    });
-    return stocks;
+    return dbStocks.map((s) => ({
+      id: s.id,
+      symbol: s.symbol,
+      name: s.name,
+      price: priceMap.get(s.symbol)?.price ?? 0.0,
+      change: priceMap.get(s.symbol)?.change ?? 0.0,
+    }));
+    //return stocks
   } catch (err) {
     console.log("Error getting stock data", err);
     throw new MyError(Errors.NOT_GET_STOCKS);

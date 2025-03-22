@@ -6,11 +6,11 @@ const database = client.db(dbName);
 
 // Types
 export interface STOCKS {
-    symbol: string,
-    name: string,
-    todayPrice: number,
-    tokenAddress: string,
-    stockID?: string
+  symbol: string;
+  name: string;
+  todayPrice: number;
+  tokenAddress: string;
+  stockID?: string;
 }
 
 // Collections
