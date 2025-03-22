@@ -12,5 +12,6 @@ export enum Errors {
     NOT_CREATE_STOCK_TOKEN = "Could not create stock token",
     INVALID_SYMBOL = "Stock symbol must be a string",
     INVALID_NAME = "Stock name must be a string",
-    INVALID_STOCK_ID = "Stock id must be a string"
+    INVALID_STOCK_ID = "Stock id must be a string",
+    NOT_GET_STOCKS = "Could not get stocks"
 }
