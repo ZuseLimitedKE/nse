@@ -75,7 +75,7 @@ async function getStockPrices(): Promise<StockPrice[]> {
     });
     return stockPrices;
   } catch (err) {
-    console.log("Could not stock prices", err);
+    console.log("Could not get stock prices", err);
     throw new MyError(Errors.NOT_GET_STOCK_PRICES);
   }
 }
