@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/card";
 import { IconSwitch, IconFlagBitcoin } from "@tabler/icons-react";
 import { useState } from "react";
+import { createStock } from "@/server-actions/creations/stocks";
+import { Spinner } from "@/components/ui/spinner";
 
 // Define the form schema with Zod
 const stockFormSchema = z.object({
@@ -63,8 +65,8 @@ export const TokenizeStockForm = () => {
   async function onSubmit(data: StockFormValues) {
     setIsSubmitting(true);
     try {
-      console.log("Stock tokenization data:", data);
       //TODO: Call Server Action/endpoint
+      await createStock(data);
       // Show success message
       toast.success(
         `Stock tokenized successfully:${data.name} (${data.symbol}) has been added to the marketplace.`,
@@ -148,7 +150,11 @@ export const TokenizeStockForm = () => {
               />
 
               <Button type="submit" className="w-full font-semibold md:w-auto">
-                <IconFlagBitcoin className="mr-1 h-4 w-4" strokeWidth={2} />
+                {isSubmitting ? (
+                  <Spinner className="mr-1 h-4 w-4 text-white" />
+                ) : (
+                  <IconFlagBitcoin className="mr-1 h-4 w-4" strokeWidth={2} />
+                )}
                 {isSubmitting ? "Tokenizing" : "Tokenize Stock"}
               </Button>
             </form>
