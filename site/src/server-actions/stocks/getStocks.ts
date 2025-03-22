@@ -35,15 +35,32 @@ interface StockPrice {
 async function getStockPrices(): Promise<StockPrice[]> {
     try {
         // Load the site
+        let stockPrices: StockPrice[] = [];
+
         const { data } = await axios.get("https://afx.kwayisi.org/nse/");
 
         // Extract data from site
         const $ = cheerio.load(data);
 
         $("div.t > table > tbody > tr").each((_idx, el) => {
-            console.log(_idx, el);
+            const data = $(el).extract({
+                symbol: {
+                    selector: 'td:first',
+                },
+                price: {
+                    selector: 'td:eq(4)'
+                },
+                change: {
+                    selector: 'td:eq(4)'
+                }
+            });
+            stockPrices.push({
+                symbol: data.symbol ?? "",
+                price: data.price ? Number.parseFloat(data.price): 0.0,
+                change: data.change ? Number.parseFloat(data.change) : 0.0
+            });
         })
-        return [];
+        return stockPrices;
     } catch(err) {
         console.log("Could not stock prices", err);
         throw new MyError(Errors.NOT_GET_STOCK_PRICES);
