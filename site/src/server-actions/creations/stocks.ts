@@ -5,9 +5,7 @@ import { revalidatePath } from "next/cache";
 import smartContract from "@/contract";
 import database from "@/db";
 
-export async function createStock(
-  args: TokenizeStock,
-) {
+export async function createStock(args: TokenizeStock) {
   try {
     // TODO: Function to get current stock price
     const todayPrice = 100;
@@ -31,7 +29,6 @@ interface IStocks {
   price: number;
   change: number;
 }
-//THIS IS JUST A DUMMY FUNCTION DON'T REMOVE IT - ANTHONY
 export async function getDummyStocks(): Promise<IStocks[]> {
   // Get random price variations to ensure data changes
   const getVariation = () =>
