@@ -1,6 +1,7 @@
 import { Errors, MyError } from "@/constants/errors";
 import database from "@/db";
 import axios from "axios";
+import * as cheerio from 'cheerio';
 
 interface StockData {
     id: number,
@@ -37,7 +38,11 @@ async function getStockPrices(): Promise<StockPrice[]> {
         const { data } = await axios.get("https://afx.kwayisi.org/nse/");
 
         // Extract data from site
+        const $ = cheerio.load(data);
 
+        $("div.t > table > tbody > tr").each((_idx, el) => {
+            console.log(_idx, el);
+        })
         return [];
     } catch(err) {
         console.log("Could not stock prices", err);
