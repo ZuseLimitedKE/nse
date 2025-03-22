@@ -9,9 +9,13 @@ export async function getStocks(): Promise<StockData[]> {
   try {
     // Get stocks listed in database
     // const stocks: StockData[] = [];
-    const dbStocks = await database.getStocks();
+    // const dbStocks = await database.getStocks();
 
-    const stockPrices = await getStockPrices();
+    // const stockPrices = await getStockPrices();
+    const [dbStocks, stockPrices] = await Promise.all([
+      database.getStocks(),
+      getStockPrices(),
+    ]);
     // Get price and change of each
     // dbStocks.map((s) => {
     //   const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
@@ -24,6 +28,7 @@ export async function getStocks(): Promise<StockData[]> {
     //     change: entry?.change ?? 0.0,
     //   });
     // });
+    // Create a map for faster lookups
     const priceMap = new Map(stockPrices.map((s) => [s.symbol, s]));
 
     return dbStocks.map((s) => ({
