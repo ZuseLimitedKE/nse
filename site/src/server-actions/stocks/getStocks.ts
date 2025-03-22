@@ -13,7 +13,7 @@ export async function getStocks(): Promise<StockData[]> {
 
     const stockPrices = await getStockPrices();
     // Get price and change of each
-    dbStocks.map(async (s) => {
+    dbStocks.map((s) => {
       const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
 
       stocks.push({
