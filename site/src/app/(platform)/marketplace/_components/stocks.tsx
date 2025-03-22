@@ -4,7 +4,7 @@
 // import { getStocks } from "@/server-actions/stocks/getStocks";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-// import { usePolling } from "@/hooks/usePolling";
+import { usePolling } from "@/hooks/usePolling";
 interface Stocks {
   id: string;
   symbol: string;
@@ -28,7 +28,7 @@ export function Stocks({ stocks }: { stocks: Stocks[] }) {
   //     </div>
   //   );
   // }
-  // usePolling(15000);
+  usePolling(45000);
   return (
     <div className="">
       {stocks && <DataTable columns={columns} data={stocks} />}
