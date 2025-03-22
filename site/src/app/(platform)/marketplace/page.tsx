@@ -1,21 +1,22 @@
-// import { getQueryClient } from "@/context/get-query-client";
-// import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { getQueryClient } from "@/context/get-query-client";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { Stocks } from "./_components/stocks";
 import { getStocks } from "@/server-actions/stocks/getStocks";
 export const dynamic = "force-dynamic";
 export default async function MarketPlacePage() {
-  // const queryClient = getQueryClient();
-  // await queryClient.prefetchQuery({
-  //   queryKey: ["stocks"],
-  //   queryFn: getStocks,
-  // });
-  const stocks = await getStocks();
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["stocks"],
+    queryFn: getStocks,
+  });
+  // const stocks = await getStocks();
   // console.log(stocks);
   return (
     <div className=" px-4 md:px-8 lg:px-16 mx-auto mb-4">
       <h1 className=" text-2xl font-bold mt-6 mb-2">Marketplace</h1>
-
-      <Stocks stocks={stocks} />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Stocks /*stocks={stocks}*/ />
+      </HydrationBoundary>
     </div>
   );
 }
