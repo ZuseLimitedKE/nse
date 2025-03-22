@@ -22,9 +22,7 @@ contract StockTokenization is ERC20, Ownable {
 
     uint256 public nextStockId = 1; //counter for stock ids
 
-    address public adminAddress; //address that will store minted tokens(minted tokens)
-
-    // Event to log stock tokenization
+    //event to log stock tokenization
     event StockTokenized(
         uint256 stockId,
         string name,
@@ -34,6 +32,9 @@ contract StockTokenization is ERC20, Ownable {
         uint256 sharePrice,
         address issuer
     );
+
+    //event to log price updates
+    event PriceUpdated(uint256 stockId, uint256 newPrice);
     
     //constructor to initialize the ERC20 token and set the admin address
     constructor() ERC20("StockToken", "STK") Ownable(msg.sender) {}
@@ -63,7 +64,19 @@ contract StockTokenization is ERC20, Ownable {
         _mint(owner(), _totalShares);
         
         //emit an event to log the tokenization
-        emit StockTokenized(stockId, _name, _symbol, _identifier, _totalShares, _sharePrice, adminAddress);
+        emit StockTokenized(stockId, _name, _symbol, _identifier, _totalShares, _sharePrice, owner());
+    }
+
+    //function to update the price of a stock (called by the backend)
+    function updateStockPrice(uint256 _stockId, uint256 _newPrice) external onlyOwner {
+        require(_newPrice > 0, "Price must be greater than 0");
+        require(stocks[_stockId].isActive, "Stock is not active");
+
+        //update the stock price
+        stocks[_stockId].sharePrice = _newPrice;
+
+        //emit an event to log the price update
+        emit PriceUpdated(_stockId, _newPrice);
     }
 
 }
