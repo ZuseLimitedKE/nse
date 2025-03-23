@@ -11,12 +11,12 @@ export default function AuthRouter() {
   const { user } = useUser();
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
+    if (!isLoaded) return;
 
     // Check for admin role in the user metadata
     const isAdmin = user?.publicMetadata?.role === "admin";
 
-    if (isAdmin) {
+    if (isAdmin && isSignedIn) {
       router.push("/admin");
     } else {
       router.push("/dashboard");
@@ -24,9 +24,9 @@ export default function AuthRouter() {
   }, [isLoaded, isSignedIn, user, router]);
 
   return (
-    <div className="min-h-screen flex justify-center items-center">
-      <div className="flex items-center gap-1">
-        <Spinner />
+    <div className="min-h-screen flex  justify-center">
+      <div className="flex items-center  text-2xl  gap-2">
+        <Spinner size="large" />
         Redirecting
       </div>
     </div>
