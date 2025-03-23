@@ -4,113 +4,111 @@ import database from "@/db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { StockData } from "@/types";
-// list of user agent strings to rotate
+
+// List of user agent strings to rotate
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-  // ...
 ];
+
 export async function getStocks(): Promise<StockData[]> {
   try {
-    // Get stocks listed in database
-    const stocks: StockData[] = [];
-    // const dbStocks = await database.getStocks();
-
-    // const stockPrices = await getStockPrices();
-    //fetch from the db and scrape in parallel
     const [dbStocks, stockPrices] = await Promise.all([
       database.getStocks(),
       getStockPrices(),
     ]);
-    // Get price and change of each
-    dbStocks.map((s) => {
-      const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
 
-      stocks.push({
-        id: s.id,
-        symbol: s.symbol,
-        name: s.name,
-        price: entry?.price ?? 0.0,
-        change: entry?.change ?? 0.0,
-      });
-    });
-    return stocks;
+    return dbStocks.map((s) => ({
+      id: s.id,
+      symbol: s.symbol,
+      name: s.name,
+      price: stockPrices.find((sy) => sy.symbol === s.symbol)?.price ?? 0.0,
+      change: stockPrices.find((sy) => sy.symbol === s.symbol)?.change ?? 0.0,
+    }));
   } catch (err) {
-    console.log("Error getting stock data", err);
+    console.error("Error getting stock data:", err);
     throw new MyError(Errors.NOT_GET_STOCKS);
   }
 }
 
+// Cache configuration
 interface StockPrice {
   symbol: string;
   price: number;
   change: number;
 }
-//in memory cache
+// in memory cache
 let stockPriceCache: { data: StockPrice[]; timestamp: number } | null = null;
-const cacheTimeToLive = 5 * 60 * 1000; // cache for 5 minutes
+const cacheTimeToLive = 5 * 60 * 1000; // 5 minutes
+let fetchingPromise: Promise<StockPrice[]> | null = null;
+
 async function getStockPrices(): Promise<StockPrice[]> {
-  //check if cache is still valid
+  // Check if cache is valid
   if (
     stockPriceCache &&
     Date.now() - stockPriceCache.timestamp < cacheTimeToLive
   ) {
     console.log("...using cached stock prices");
-    return stockPriceCache.data;
+    return structuredClone(stockPriceCache.data);
   }
+
+  // Prevent multiple concurrent fetches
+  if (fetchingPromise) {
+    console.log("...waiting for ongoing fetch");
+    return fetchingPromise;
+  }
+
   try {
-    // Load the site
-    const stockPrices: StockPrice[] = [];
-    console.log("...attempting to scrape with a 5 second timeout");
-    const ua = userAgents[Math.floor(Math.random() * userAgents.length)];
-    const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
-      timeout: 5000,
-      headers: {
-        "User-Agent": ua,
-      },
-    });
+    // Fetch new data
+    fetchingPromise = fetchStockPrices();
 
-    // Extract data from site
-    const $ = cheerio.load(data);
+    const data = await fetchingPromise;
+    stockPriceCache = { data, timestamp: Date.now() };
 
-    $("div.t > table > tbody > tr").each((_idx, el) => {
-      const data = $(el).extract({
-        symbol: {
-          selector: "td:first",
-        },
-        price: {
-          selector: "td:eq(3)",
-        },
-        change: {
-          selector: "td:eq(4)",
-        },
-      });
-      stockPrices.push({
-        symbol: data.symbol ?? "",
-        price: data.price ? Number.parseFloat(data.price) : 0.0,
-        change: data.change ? Number.parseFloat(data.change) : 0.0,
-      });
-    });
-
-    // Cache the results
-    console.log("...saving to cache");
-    stockPriceCache = {
-      data: stockPrices,
-      timestamp: Date.now(),
-    };
-
-    return stockPrices;
+    return structuredClone(data);
   } catch (err) {
-    // use stale cache if present on failure
+    console.error("...web scraping failed:", err);
+
     if (stockPriceCache) {
-      console.log("...web scraping failed , using stale cache");
-      return stockPriceCache.data;
+      console.log("...using stale cache");
+      return structuredClone(stockPriceCache.data);
     }
-    console.log("...web scraping failed , using fallback values", err);
-    //throw new MyError(Errors.NOT_GET_STOCK_PRICES);
-    //TODO: FIND A WAY OF GETTING FALLBACK DATA
+
     return [];
+  } finally {
+    fetchingPromise = null; // Reset promise after fetch completes
   }
+}
+
+// Scraping function
+async function fetchStockPrices(): Promise<StockPrice[]> {
+  console.log("...attempting to scrape with a 5-second timeout");
+
+  const ua = userAgents[Math.floor(Math.random() * userAgents.length)];
+  const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
+    timeout: 5000,
+    headers: { "User-Agent": ua },
+  });
+
+  const $ = cheerio.load(data);
+  const stockPrices: StockPrice[] = [];
+
+  $("div.t > table > tbody > tr").each((_idx, el) => {
+    const row = $(el).extract({
+      symbol: { selector: "td:first" },
+      price: { selector: "td:eq(3)" },
+      change: { selector: "td:eq(4)" },
+    });
+
+    stockPrices.push({
+      symbol: row.symbol ?? "",
+      price: row.price ? Number.parseFloat(row.price) : 0.0,
+      change: row.change ? Number.parseFloat(row.change) : 0.0,
+    });
+  });
+
+  console.log("...saving to cache");
+  return stockPrices;
 }
