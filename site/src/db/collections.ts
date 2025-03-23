@@ -3,6 +3,7 @@ import client from "./connection";
 const dbName = "orion";
 const stocksCollection = "stocks";
 const stockPricesCollection = "stockPrices";
+const stockPurchases = "stockPurchases";
 const database = client.db(dbName);
 
 // Types
@@ -20,6 +21,15 @@ export interface STOCKPRICES {
   change: number
 }
 
+export interface STOCKPURCHASES {
+  stock_symbol: string,
+  name: string,
+  amount_shares: number,
+  buy_price: number,
+  purchase_date: Date
+}
+
 // Collections
 export const STOCKS_COLLECTION = database.collection<STOCKS>(stocksCollection);
 export const STOCK_PRICES_COLLECTIONS = database.collection<STOCKPRICES>(stockPricesCollection);
+export const STOCK_PURCHASES = database.collection<STOCKPURCHASES>(stockPurchases);

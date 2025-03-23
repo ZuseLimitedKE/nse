@@ -21,5 +21,7 @@ export enum Errors {
     INVALID_PHONE_NUMBER = "Phone number is invalid",
     NOT_SEND_STK_PUSH = "Could not send STK Push",
     NOT_GET_STOCK_PRICES_DB = "Could not get stock prices from db",
-    NOT_UPDATE_STOCK_PRICES_DB = "Could not update stock prices in db"
+    NOT_UPDATE_STOCK_PRICES_DB = "Could not update stock prices in db",
+    INVALID_BUY_PRICE = "Buy price must be greater than 0",
+    NOT_STORE_STOCK_PURCHASE = "Could not store stock purchase",
 }
