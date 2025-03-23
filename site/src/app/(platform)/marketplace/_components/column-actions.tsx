@@ -31,12 +31,14 @@ import { IconShoppingCart } from "@tabler/icons-react";
 import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
+import { useAppKitAccount } from "@reown/appkit/react";
 // Defines the form value type from the schema
 type FormValues = z.infer<typeof stkPushSchema>;
 
 export function ColumnActions({ entry }: { entry: StockData }) {
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isConnected, address } = useAppKitAccount();
   // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(stkPushSchema),
@@ -65,15 +67,22 @@ export function ColumnActions({ entry }: { entry: StockData }) {
   }, [quantity, entry.price, form]);
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
+    if (!address || !isConnected) {
+      toast.warning("you need to connect your wallet in order to proceed");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await sendSTKPush(data);
+      const mpesa_request_id = await sendSTKPush(data);
       await store_stock_purchase({
         stock_symbol: data.stock_symbol,
         name: entry.name,
         amount_shares: quantity,
         buy_price: data.amount,
+        mpesa_request_id: mpesa_request_id,
+        user_wallet: address,
         purchase_date: new Date(),
       });
       // Show success message
@@ -94,7 +103,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
   const onError = (errors: FieldErrors<FormValues>) => {
     Object.keys(errors).forEach((field) => {
       const key = field as keyof FormValues;
-      toast.error(`Field: ${field}, Error: ${errors[key]?.message}`);
+      toast.error(`Error: ${errors[key]?.message}`);
     });
   };
 
