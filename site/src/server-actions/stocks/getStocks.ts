@@ -9,9 +9,14 @@ export async function getStocks(): Promise<StockData[]> {
   try {
     // Get stocks listed in database
     const stocks: StockData[] = [];
-    const dbStocks = await database.getStocks();
+    // const dbStocks = await database.getStocks();
 
-    const stockPrices = await getStockPrices();
+    // const stockPrices = await getStockPrices();
+    //fetch from the db and scrape in parallel
+    const [dbStocks, stockPrices] = await Promise.all([
+      database.getStocks(),
+      getStockPrices(),
+    ]);
     // Get price and change of each
     dbStocks.map((s) => {
       const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
@@ -36,13 +41,24 @@ interface StockPrice {
   price: number;
   change: number;
 }
+//in memory cache
+let stockPriceCache: { data: StockPrice[]; timestamp: number } | null = null;
+const cacheTimeToLive = 5 * 60 * 1000; // cache for 5 minutes
 async function getStockPrices(): Promise<StockPrice[]> {
+  //check if cache is still valid
+  if (
+    stockPriceCache &&
+    Date.now() - stockPriceCache.timestamp < cacheTimeToLive
+  ) {
+    console.log("...using cached stock prices");
+    return stockPriceCache.data;
+  }
   try {
     // Load the site
     const stockPrices: StockPrice[] = [];
-
+    console.log("...attempting to scrape with a 7 second timeout");
     const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
-      timeout: 5000,
+      timeout: 7000,
     });
 
     // Extract data from site
@@ -66,9 +82,22 @@ async function getStockPrices(): Promise<StockPrice[]> {
         change: data.change ? Number.parseFloat(data.change) : 0.0,
       });
     });
+
+    // Cache the results
+    console.log("...saving to cache");
+    stockPriceCache = {
+      data: stockPrices,
+      timestamp: Date.now(),
+    };
+
     return stockPrices;
   } catch (err) {
-    console.log("Web Scraping failed , using fallback values", err);
+    // use stale cache if present on failure
+    if (stockPriceCache) {
+      console.log("...web scraping failed , using stale cache");
+      return stockPriceCache.data;
+    }
+    console.log("...web scraping failed , using fallback values", err);
     //throw new MyError(Errors.NOT_GET_STOCK_PRICES);
     //TODO: FIND A WAY OF GETTING FALLBACK DATA
     return [];
