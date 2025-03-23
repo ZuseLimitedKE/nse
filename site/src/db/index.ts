@@ -1,5 +1,5 @@
 import { Errors, MyError } from "@/constants/errors";
-import { STOCKS, STOCKS_COLLECTION } from "./collections";
+import { STOCK_PRICES_COLLECTIONS, STOCKPRICES, STOCKS, STOCKS_COLLECTION } from "./collections";
 
 interface GetStocks {
   id: string;
@@ -35,6 +35,38 @@ export class MyDatabase {
     } catch (err) {
       console.log("Error getting stocks from DB", err);
       throw new MyError(Errors.NOT_GET_STOCKS_DB);
+    }
+  }
+
+  async getStockPricesFromDB(): Promise<STOCKPRICES[]> {
+    try {
+      let stocks: STOCKPRICES[] = [];
+      const cursor = STOCK_PRICES_COLLECTIONS.find();
+      for await (const doc of cursor) {
+        stocks.push({
+          symbol: doc.symbol,
+          change: doc.change,
+          price: doc.price
+        });
+      }
+      
+      return stocks;
+    } catch(err) {
+      console.log("Error getting stock prices from db", err);
+      throw new MyError(Errors.NOT_GET_STOCK_PRICES_DB);
+    }
+  }
+
+  async updateStockPricesInDB(args: STOCKPRICES[]) {
+    try {
+      // Delete previous records
+      await STOCK_PRICES_COLLECTIONS.deleteMany({});
+
+      // Insert new records
+      await STOCK_PRICES_COLLECTIONS.insertMany(args);
+    } catch(err) {  
+      console.log("Could not update stock prices in db", err);
+      throw new MyError(Errors.NOT_UPDATE_STOCK_PRICES_DB);
     }
   }
 }
