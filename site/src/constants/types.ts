@@ -22,5 +22,20 @@ export const stkPushSchema = z.object({
     .max(9, { message: Errors.INVALID_SYMBOL }),
 });
 
+export const storeStockPurchase = z.object({
+  stock_symbol: z
+    .string({ message: Errors.INVALID_SYMBOL })
+    .max(9, { message: Errors.INVALID_SYMBOL }),
+  name: z.string({ message: Errors.INVALID_NAME }),
+  amount_shares: z
+    .number({ message: Errors.INVALID_AMOUNT })
+    .gt(0, { message: Errors.INVALID_AMOUNT })
+    .int({ message: Errors.INVALID_AMOUNT }),
+  buy_price: z.number({message: Errors.INVALID_BUY_PRICE})
+    .gt(0, {message: Errors.INVALID_BUY_PRICE}),
+  purchase_date: z.date()
+})
+
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
 export type STKPush = z.infer<typeof stkPushSchema>;
+export type StoreStockPurchase = z.infer<typeof storeStockPurchase>;

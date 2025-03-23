@@ -1,7 +1,9 @@
 import { Errors, MyError } from "@/constants/errors";
 import {
   STOCK_PRICES_COLLECTIONS,
+  STOCK_PURCHASES,
   STOCKPRICES,
+  STOCKPURCHASES,
   STOCKS,
   STOCKS_COLLECTION,
 } from "./collections";
@@ -72,6 +74,15 @@ export class MyDatabase {
     } catch (err) {
       console.log("Could not update stock prices in db", err);
       throw new MyError(Errors.NOT_UPDATE_STOCK_PRICES_DB);
+    }
+  }
+
+  async storeStockPurchase(args: STOCKPURCHASES) {
+    try {
+      await STOCK_PURCHASES.insertOne(args);
+    } catch(err) {
+      console.log("Could not store stock purchase", err);
+      throw new MyError(Errors.NOT_STORE_STOCK_PURCHASE_DB);
     }
   }
 }
