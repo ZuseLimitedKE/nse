@@ -58,7 +58,7 @@ async function getStockPrices(): Promise<StockPrice[]> {
     const stockPrices: StockPrice[] = [];
     console.log("...attempting to scrape with a 7 second timeout");
     const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
-      timeout: 7000,
+      timeout: 5000,
     });
 
     // Extract data from site
