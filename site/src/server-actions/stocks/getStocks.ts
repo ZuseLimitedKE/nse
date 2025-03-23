@@ -121,10 +121,9 @@ async function getStockPrices(): Promise<STOCKPRICES[]> {
     try {
       const stocks = await database.getStockPricesFromDB();
       return stocks;
-    } catch(err) {
+    } catch (err) {
       console.log("...error getting stocks from db", err);
       return [];
     }
-    
   }
 }
