@@ -47,16 +47,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
       customer_phone_number: "",
       stock_symbol: entry.symbol,
     },
-    // mode: "onSubmit", // This ensures validation runs on submit
   });
-
-  // Log form state changes for debugging
-  // useEffect(() => {
-  //   const subscription = form.watch((value) => {
-  //     console.log("Form values changed:", value);
-  //   });
-  //   return () => subscription.unsubscribe();
-  // }, [form]);
 
   // Update the form value when quantity changes
   useEffect(() => {
