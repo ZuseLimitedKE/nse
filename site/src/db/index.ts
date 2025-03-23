@@ -40,7 +40,7 @@ export class MyDatabase {
 
   async getStockPricesFromDB(): Promise<STOCKPRICES[]> {
     try {
-      let stocks: STOCKPRICES[] = [];
+      const stocks: STOCKPRICES[] = [];
       const cursor = STOCK_PRICES_COLLECTIONS.find();
       for await (const doc of cursor) {
         stocks.push({
