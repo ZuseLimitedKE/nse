@@ -2,6 +2,7 @@
 import { Errors, MyError } from "@/constants/errors";
 import database from "@/db";
 import axios from "axios";
+import { unstable_cache } from "next/cache";
 import * as cheerio from "cheerio";
 import { StockData } from "@/types";
 // list of user agent strings to rotate
@@ -15,30 +16,40 @@ const userAgents = [
 export async function getStocks(): Promise<StockData[]> {
   try {
     // Get stocks listed in database
-    const stocks: StockData[] = [];
+    // const stocks: StockData[] = [];
     // const dbStocks = await database.getStocks();
 
     // const stockPrices = await getStockPrices();
     //fetch from the db and scrape in parallel
     const [dbStocks, stockPrices] = await Promise.all([
-      database.getStocks(),
-      getStockPrices(),
+      database.getStocks().catch((err) => {
+        console.error("DB error:", err);
+        return [];
+      }),
+      getStockPricesWithCache(),
     ]);
     // Get price and change of each
-    dbStocks.map((s) => {
+    return dbStocks.map((s) => {
       const entry = stockPrices.find((sy) => sy.symbol === s.symbol);
 
-      stocks.push({
+      // stocks.push({
+      //   id: s.id,
+      //   symbol: s.symbol,
+      //   name: s.name,
+      //   price: entry?.price ?? 0.0,
+      //   change: entry?.change ?? 0.0,
+      // });
+      return {
         id: s.id,
         symbol: s.symbol,
         name: s.name,
         price: entry?.price ?? 0.0,
         change: entry?.change ?? 0.0,
-      });
+      };
     });
-    return stocks;
+    // return stocks;
   } catch (err) {
-    console.log("Error getting stock data", err);
+    console.error("Error getting stock data", err);
     throw new MyError(Errors.NOT_GET_STOCKS);
   }
 }
@@ -48,27 +59,25 @@ interface StockPrice {
   price: number;
   change: number;
 }
-//in memory cache
-let stockPriceCache: { data: StockPrice[]; timestamp: number } | null = null;
-const cacheTimeToLive = 5 * 60 * 1000; // cache for 5 minutes
+const getStockPricesWithCache = unstable_cache(
+  async () => {
+    console.log("...using cache");
+    return await getStockPrices();
+  },
+  ["stock-prices"],
+  { revalidate: 300 }, // 300 seconds = 5 minutes
+);
+
 async function getStockPrices(): Promise<StockPrice[]> {
-  //check if cache is still valid
-  if (
-    stockPriceCache &&
-    Date.now() - stockPriceCache.timestamp < cacheTimeToLive
-  ) {
-    console.log("...using cached stock prices");
-    return stockPriceCache.data;
-  }
   try {
     // Load the site
     const stockPrices: StockPrice[] = [];
-    console.log("...attempting to scrape with a 5 second timeout");
-    const ua = userAgents[Math.floor(Math.random() * userAgents.length)];
+    console.log("...attempting to scrape with a 7 second timeout");
+    const userAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
     const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
-      timeout: 5000,
+      timeout: 7000,
       headers: {
-        "User-Agent": ua,
+        "User-Agent": userAgent,
       },
     });
 
@@ -94,21 +103,18 @@ async function getStockPrices(): Promise<StockPrice[]> {
       });
     });
 
-    // Cache the results
-    console.log("...saving to cache");
-    stockPriceCache = {
-      data: stockPrices,
-      timestamp: Date.now(),
-    };
-
     return stockPrices;
   } catch (err) {
-    // use stale cache if present on failure
-    if (stockPriceCache) {
-      console.log("...web scraping failed , using stale cache");
-      return stockPriceCache.data;
+    console.error("...web scraping failed , using fallback values", err);
+    if (axios.isAxiosError(err)) {
+      if (err.response) {
+        console.error(`Axios error: HTTP ${err.response.status}`);
+      } else if (err.request) {
+        console.error("Axios error: No response received");
+      } else {
+        console.error("Axios error: Request setup failed");
+      }
     }
-    console.log("...web scraping failed , using fallback values", err);
     //throw new MyError(Errors.NOT_GET_STOCK_PRICES);
     //TODO: FIND A WAY OF GETTING FALLBACK DATA
     return [];
