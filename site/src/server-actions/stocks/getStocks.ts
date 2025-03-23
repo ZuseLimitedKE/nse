@@ -5,6 +5,7 @@ import axios from "axios";
 import { unstable_cache } from "next/cache";
 import * as cheerio from "cheerio";
 import { StockData } from "@/types";
+import { STOCKPRICES } from "@/db/collections";
 // list of user agent strings to rotate
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
@@ -54,11 +55,6 @@ export async function getStocks(): Promise<StockData[]> {
   }
 }
 
-interface StockPrice {
-  symbol: string;
-  price: number;
-  change: number;
-}
 const getStockPricesWithCache = unstable_cache(
   async () => {
     console.log("...using cache");
@@ -68,10 +64,11 @@ const getStockPricesWithCache = unstable_cache(
   { revalidate: 300 }, // 300 seconds = 5 minutes
 );
 
-async function getStockPrices(): Promise<StockPrice[]> {
+async function getStockPrices(): Promise<STOCKPRICES[]> {
   try {
     // Load the site
-    const stockPrices: StockPrice[] = [];
+    const stockPrices: STOCKPRICES[] = [];
+
     console.log("...attempting to scrape with a 7 second timeout");
     const userAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
     const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
@@ -103,6 +100,10 @@ async function getStockPrices(): Promise<StockPrice[]> {
       });
     });
 
+    // Update database with stock prices
+    console.log("...updating prices in db");
+    await database.updateStockPricesInDB(stockPrices);
+
     return stockPrices;
   } catch (err) {
     console.error("...web scraping failed , using fallback values", err);
@@ -117,6 +118,13 @@ async function getStockPrices(): Promise<StockPrice[]> {
     }
     //throw new MyError(Errors.NOT_GET_STOCK_PRICES);
     //TODO: FIND A WAY OF GETTING FALLBACK DATA
-    return [];
+    try {
+      const stocks = await database.getStockPricesFromDB();
+      return stocks;
+    } catch(err) {
+      console.log("...error getting stocks from db", err);
+      return [];
+    }
+    
   }
 }
