@@ -23,6 +23,8 @@ export const stkPushSchema = z.object({
 });
 
 export const storeStockPurchase = z.object({
+  mpesa_request_id: z.string().optional(),
+  txHash: z.string().optional(),
   stock_symbol: z
     .string({ message: Errors.INVALID_SYMBOL })
     .max(9, { message: Errors.INVALID_SYMBOL }),
