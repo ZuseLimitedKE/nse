@@ -33,7 +33,8 @@ export const storeStockPurchase = z.object({
     .int({ message: Errors.INVALID_AMOUNT }),
   buy_price: z.number({message: Errors.INVALID_BUY_PRICE})
     .gt(0, {message: Errors.INVALID_BUY_PRICE}),
-  purchase_date: z.date()
+  purchase_date: z.date(),
+  user_wallet: z.string({message: Errors.INVALID_WALLET}).min(42, {message: Errors.INVALID_WALLET})
 })
 
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
