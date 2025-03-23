@@ -22,12 +22,15 @@ export interface STOCKPRICES {
 }
 
 export interface STOCKPURCHASES {
+  mpesa_request_id?: string,
+  txHash?: string,
   user_wallet: string,
   stock_symbol: string,
   name: string,
   amount_shares: number,
   buy_price: number,
-  purchase_date: Date
+  purchase_date: Date,
+  status: string
 }
 
 // Collections
