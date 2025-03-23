@@ -6,7 +6,7 @@ import { getAccessToken } from "./authentication";
 import axios from "axios";
 import "../../../envConfig";
 
-export async function sendSTKPush(args: STKPush) {
+export async function sendSTKPush(args: STKPush): Promise<string> {
     try {
         const today = new Date();
         const year = today.getFullYear();
@@ -41,6 +41,8 @@ export async function sendSTKPush(args: STKPush) {
 
         if (response.status !== 200) {
             throw new MyError(Errors.NOT_SEND_STK_PUSH);
+        } else {
+            return response.data['MerchantRequestID'];
         }
     } catch (err) {
         console.log("Could not send STK Push", err);

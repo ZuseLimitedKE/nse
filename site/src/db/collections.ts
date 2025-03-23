@@ -27,7 +27,8 @@ export interface STOCKPURCHASES {
   name: string,
   amount_shares: number,
   buy_price: number,
-  purchase_date: Date
+  purchase_date: Date,
+  status: string
 }
 
 // Collections
