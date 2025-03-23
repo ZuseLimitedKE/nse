@@ -41,7 +41,9 @@ async function getStockPrices(): Promise<StockPrice[]> {
     // Load the site
     const stockPrices: StockPrice[] = [];
 
-    const { data } = await axios.get("https://afx.kwayisi.org/nse/");
+    const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
+      timeout: 5000,
+    });
 
     // Extract data from site
     const $ = cheerio.load(data);
@@ -66,7 +68,9 @@ async function getStockPrices(): Promise<StockPrice[]> {
     });
     return stockPrices;
   } catch (err) {
-    console.log("Could not stock prices", err);
-    throw new MyError(Errors.NOT_GET_STOCK_PRICES);
+    console.log("Web Scraping failed , using fallback values", err);
+    //throw new MyError(Errors.NOT_GET_STOCK_PRICES);
+    //TODO: FIND A WAY OF GETTING FALLBACK DATA
+    return [];
   }
 }
