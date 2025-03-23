@@ -30,6 +30,7 @@ import { IconCash } from "@tabler/icons-react";
 import { IconShoppingCart } from "@tabler/icons-react";
 import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
+import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
 // Defines the form value type from the schema
 type FormValues = z.infer<typeof stkPushSchema>;
 
@@ -68,7 +69,13 @@ export function ColumnActions({ entry }: { entry: StockData }) {
 
     try {
       await sendSTKPush(data);
-
+      await store_stock_purchase({
+        stock_symbol: data.stock_symbol,
+        name: entry.name,
+        amount_shares: quantity,
+        buy_price: data.amount,
+        purchase_date: new Date(),
+      });
       // Show success message
       toast.info(`Sent, waiting for payment confirmation...`);
 
@@ -172,7 +179,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
 
             <div className="grid gap-2">
               <label className="text-sm font-medium">Total Amount</label>
-              <div className="text-xl font-bold">
+              <div className="text-xl font-bold overflow-hidden">
                 KSH{" "}
                 {(entry.price * quantity).toLocaleString("en-KE", {
                   minimumFractionDigits: 2,
