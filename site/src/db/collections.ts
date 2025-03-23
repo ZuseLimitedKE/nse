@@ -22,6 +22,7 @@ export interface STOCKPRICES {
 }
 
 export interface STOCKPURCHASES {
+  user_wallet: string,
   stock_symbol: string,
   name: string,
   amount_shares: number,
