@@ -17,7 +17,7 @@ export function Stocks(/*{ stocks }: { stocks: Stocks[] }*/) {
     queryKey: ["stocks"],
     queryFn: getStocks,
     // enable polling
-    refetchInterval: 15000,
+    refetchInterval: 20000,
   });
   if (isLoading) {
     return (

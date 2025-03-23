@@ -4,7 +4,14 @@ import database from "@/db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { StockData } from "@/types";
-
+// list of user agent strings to rotate
+const userAgents = [
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+  // ...
+];
 export async function getStocks(): Promise<StockData[]> {
   try {
     // Get stocks listed in database
@@ -57,8 +64,12 @@ async function getStockPrices(): Promise<StockPrice[]> {
     // Load the site
     const stockPrices: StockPrice[] = [];
     console.log("...attempting to scrape with a 5 second timeout");
+    const ua = userAgents[Math.floor(Math.random() * userAgents.length)];
     const { data } = await axios.get("https://afx.kwayisi.org/nse/", {
       timeout: 5000,
+      headers: {
+        "User-Agent": ua,
+      },
     });
 
     // Extract data from site
