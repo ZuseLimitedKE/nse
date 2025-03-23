@@ -22,6 +22,8 @@ export interface STOCKPRICES {
 }
 
 export interface STOCKPURCHASES {
+  mpesa_request_id?: string,
+  txHash?: string,
   user_wallet: string,
   stock_symbol: string,
   name: string,
