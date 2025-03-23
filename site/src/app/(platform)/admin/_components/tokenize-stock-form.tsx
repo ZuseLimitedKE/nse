@@ -83,7 +83,7 @@ export const TokenizeStockForm = () => {
   }
 
   return (
-    <div className="container max-w-3xl px-4 py-2 justify-self-center">
+    <div className="container mx-auto max-w-3xl px-4 py-2 justify-self-center">
       <div className="mb-4 flex items-center gap-2">
         <IconSwitch className="h-6 w-6 text-primary" />
         <h1 className="text-2xl font-bold">Stock Tokenization</h1>
