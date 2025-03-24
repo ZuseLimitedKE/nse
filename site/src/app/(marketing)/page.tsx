@@ -189,7 +189,7 @@ export default function LandingPage() {
               <AccordionTrigger>How do I start investing?</AccordionTrigger>
               <AccordionContent>
                 Connect your Hedera wallet, browse our marketplace of stocks,
-                and purchase using ETH or mobile money. It's that simple!
+                and purchase using ETH or mobile money. It&apos;s that simple!
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
