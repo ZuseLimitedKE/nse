@@ -1,38 +1,40 @@
 "use client";
-
 import { StockData } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { ColumnActions } from "./column-actions";
 export const columns: ColumnDef<StockData>[] = [
   {
-    accessorKey: "id",
-    header: "Id",
-  },
-  {
     accessorKey: "symbol",
-    header: "Symbol",
+    header: ({ column }) => {
+      return (
+        <div
+          className="cursor-pointer flex gap-1 items-center "
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Symbol
+          <ArrowUpDown className=" h-4 w-4" />
+        </div>
+      );
+    },
   },
 
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          className=" p-0 "
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown className=" h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Name",
   },
   {
     accessorKey: "price",
     header: "Price",
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue("price"));
+      const formatted = new Intl.NumberFormat("en-KE", {
+        style: "currency",
+        currency: "ksh",
+      }).format(price);
+
+      return <div className="tracking-wide">{formatted}</div>;
+    },
   },
   {
     accessorKey: "change",
