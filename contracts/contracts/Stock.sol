@@ -19,7 +19,7 @@ contract StockTokenization is ERC20, Ownable {
     }
 
     mapping(uint256 => Stock) public stocks; //mapping to store the stocks by their id
-    mapping(uint256 => mapping(address => uint256)) public investorBalances; //mapping to store investor balances
+    mapping(uint256 => mapping(address => uint256)) public investorBalances;
 
     uint256 public nextStockId = 1; //counter for stock ids
 
@@ -33,10 +33,6 @@ contract StockTokenization is ERC20, Ownable {
         uint256 sharePrice,
         address issuer
     );
-
-    //event to log price updates
-    event PriceUpdated(uint256 stockId, uint256 newPrice);
-
     //event to log purchase of shares
        event SharesPurchased(
         uint256 indexed stockId,
@@ -44,6 +40,15 @@ contract StockTokenization is ERC20, Ownable {
         uint256 amount,
         uint256 totalCost
     );
+    //event to log sale of shares
+        event SharesSold(
+        uint256 indexed stockId,
+        address indexed seller,
+        uint256 amount,
+        uint256 totalValue
+    );
+    //event to log price updates
+    event PriceUpdated(uint256 stockId, uint256 newPrice);
     
     //constructor to initialize the ERC20 token and set the admin address
     constructor() ERC20("StockToken", "STK") Ownable(msg.sender) {}
@@ -119,5 +124,47 @@ contract StockTokenization is ERC20, Ownable {
     emit SharesPurchased(_stockId, msg.sender, _amount, totalCost);
 
     }
+
+    //Function to sell shares
+    function sellShares(uint256 _stockId, uint256 _amount) external {
+        Stock storage stock = stocks[_stockId];
+        
+        // Validate the sale
+        require(stock.isActive, "Stock is not active for trading");
+        require(_amount > 0, "Amount must be greater than 0");
+        require(investorBalances[_stockId][msg.sender] >= _amount, "Insufficient shares to sell");
+        
+        // Calculate total value
+        uint256 totalValue = _amount * stock.sharePrice;
+        
+        // Verify contract has enough ETH
+        require( address(this).balance >= totalValue, "Insufficient contract balance" );
+        
+        // Transfer tokens back to admin
+        _transfer(msg.sender, owner(), _amount);
+        
+        // Update state before external call
+        investorBalances[_stockId][msg.sender] -= _amount;
+        stock.sharesSold -= _amount;
+        
+        // Send ETH to seller
+        payable(msg.sender).transfer(totalValue);
+        
+        emit SharesSold(_stockId, msg.sender, _amount, totalValue);
+    }
+
+    // Allow contract to receive ETH (needed for purchases)
+    receive() external payable {}
+
+    //Function to fund contract with ETH
+    function sendEthToContract() external payable onlyOwner{
+        require(msg.value > 0, "Value must be greater than 0");
+    }
+
+    //Function to check contract balance
+    function getContractBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
+
 
 }
