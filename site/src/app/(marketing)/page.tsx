@@ -17,6 +17,12 @@ import {
 } from "@tabler/icons-react";
 import { TrendingUp } from "lucide-react";
 import Link from "next/link";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 export default function LandingPage() {
   const words = [
     {
@@ -95,7 +101,7 @@ export default function LandingPage() {
       </section>
       {/* Features Section */}
       <section className=" z-20 py-12 md:py-20 px-8">
-        <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-center mb-12">
+        <h2 className="text-3xl lg:text-4xl  font-bold text-center mb-12">
           How It Works
         </h2>
         <div className="grid gap-6 md:grid-cols-3">
@@ -170,6 +176,48 @@ export default function LandingPage() {
               </Link>
             </CardFooter>
           </Card>
+        </div>
+      </section>
+      {/*FAQ Section*/}
+      <section className=" py-12 md:py-20 px-8  w-full relative ">
+        <h2 className="text-3xl lg:text-4xl   font-bold text-center mb-12">
+          Frequently Asked Questions
+        </h2>
+        <div className="w-full bg-white rounded-sm p-2 border border-primary/10 rounded-xl px-4 ">
+          <Accordion type="multiple" className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>How do I start investing?</AccordionTrigger>
+              <AccordionContent>
+                Connect your Hedera wallet, browse our marketplace of stocks,
+                and purchase using ETH or mobile money. It's that simple!
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>
+                What payment methods are accepted?
+              </AccordionTrigger>
+              <AccordionContent>
+                We currently accept ETH and various mobile money providers. More
+                payment options will be added soon.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger>
+                How do I cash out my investments?
+              </AccordionTrigger>
+              <AccordionContent>
+                Go to your dashboard, select the stocks you want to sell, and
+                choose your preferred withdrawal method. Funds will be
+                transferred within 24 hours.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-4">
+              <AccordionTrigger>Are there any fees?</AccordionTrigger>
+              <AccordionContent>
+                There are no hidden fees or monthly charges.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
     </div>
