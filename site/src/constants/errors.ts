@@ -27,4 +27,6 @@ export enum Errors {
     NOT_STORE_STOCK_PURCHASE_DB = "Could not store stock purchase on db",
     INVALID_WALLET = "Wallet must be 42 characters long",
     NOT_MAKE_PAYMENT_REQUEST = "Could not make paystack payment request",
+    NOT_GET_RECEPIENT_CODE = "Could not get recepient code",
+    UNKNOWN = "Unkown error",
 }
