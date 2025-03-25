@@ -9,6 +9,8 @@ declare global {
       BUSINESS_SHORT_CODE: string;
       PASS_KEY: string;
       URL: string;
+      PAYSTACK_URL: string;
+      PAYSTACK_SECRET: string;
     }
   }
 }
