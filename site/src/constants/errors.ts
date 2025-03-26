@@ -19,11 +19,16 @@ export enum Errors {
     NOT_GET_SAFARICOM_TOKEN = "Could not get access token from safaricom",
     INVALID_AMOUNT = "Amount must be greater than 0 and whole",
     INVALID_PHONE_NUMBER = "Phone number is invalid",
+    INVALID_SELL_PRICE = "Sell price must be greater than 0",
     NOT_SEND_STK_PUSH = "Could not send STK Push",
     NOT_GET_STOCK_PRICES_DB = "Could not get stock prices from db",
     NOT_UPDATE_STOCK_PRICES_DB = "Could not update stock prices in db",
     INVALID_BUY_PRICE = "Buy price must be greater than 0",
     NOT_STORE_STOCK_PURCHASE = "Could not store stock purchase",
     NOT_STORE_STOCK_PURCHASE_DB = "Could not store stock purchase on db",
-    INVALID_WALLET = "Wallet must be 42 characters long"
+    INVALID_WALLET = "Wallet must be 42 characters long",
+    NOT_MAKE_PAYMENT_REQUEST = "Could not make paystack payment request",
+    NOT_GET_RECEPIENT_CODE = "Could not get recepient code",
+    NOT_GET_TRANSFER_REFERENCE = "Could not get transfer reference",
+    UNKNOWN = "Unkown error",
 }
