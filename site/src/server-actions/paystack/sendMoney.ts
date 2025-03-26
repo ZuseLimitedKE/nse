@@ -105,7 +105,7 @@ export default async function sendMoneyTransfer(args: SendMoneyTransfer) {
         }
 
         const transfer_reference = await generateTransferReference(args);
-        const response = await axios.post("https://api.paystack.co/transfer", transfer_reference, {
+        await axios.post("https://api.paystack.co/transfer", transfer_reference, {
             headers :{
                 Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
             }
