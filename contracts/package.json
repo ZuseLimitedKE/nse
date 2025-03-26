@@ -1,4 +1,9 @@
 {
+	"scripts": {
+		"compile": "npx hardhat compile",
+		"node": "npx hardhat node",
+		"deploy": "npx hardhat ignition deploy ./ignition/modules/Stock.ts --network localhost"
+	},
 	"devDependencies": {
 		"@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
 		"@nomicfoundation/hardhat-ethers": "^3.0.0",
@@ -15,6 +20,7 @@
 		"chai": "^4.2.0",
 		"ethers": "^6.4.0",
 		"hardhat": "^2.22.19",
+		"hardhat-deploy": "^1.0.1",
 		"hardhat-gas-reporter": "^1.0.8",
 		"solidity-coverage": "^0.8.0",
 		"ts-node": ">=8.0.0",
@@ -22,6 +28,7 @@
 		"typescript": ">=4.5.0"
 	},
 	"dependencies": {
-		"@openzeppelin/contracts": "^5.2.0"
+		"@openzeppelin/contracts": "^5.2.0",
+		"dotenv": "^16.4.7"
 	}
 }
