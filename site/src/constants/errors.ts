@@ -28,5 +28,6 @@ export enum Errors {
     INVALID_WALLET = "Wallet must be 42 characters long",
     NOT_MAKE_PAYMENT_REQUEST = "Could not make paystack payment request",
     NOT_GET_RECEPIENT_CODE = "Could not get recepient code",
+    NOT_GET_TRANSFER_REFERENCE = "Could not get transfer reference",
     UNKNOWN = "Unkown error",
 }
