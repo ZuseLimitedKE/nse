@@ -3,6 +3,7 @@
 import "../../../envConfig";
 import { Errors, MyError } from "@/constants/errors";
 import { sleep } from "@/constants/helpers";
+import { SendMoneyTransfer } from "@/constants/types";
 import axios from "axios"
 import crypto from "crypto";
 
@@ -96,7 +97,7 @@ async function generateTransferReference(args: CreateTransferReference, retry?: 
     }
 }
 
-export default async function sendMoneyTransfer(args: CreateTransferReference) {
+export default async function sendMoneyTransfer(args: SendMoneyTransfer) {
     try {
         if (!process.env.PAYSTACK_SECRET) {
             console.log("Set paystack secret in env variables");

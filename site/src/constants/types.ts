@@ -37,8 +37,18 @@ export const storeStockPurchase = z.object({
     .gt(0, {message: Errors.INVALID_BUY_PRICE}),
   purchase_date: z.date(),
   user_wallet: z.string({message: Errors.INVALID_WALLET}).min(42, {message: Errors.INVALID_WALLET})
-})
+});
+
+export const sendMoneyTransferSchema = z.object({
+  customer_name: z.string(),
+  customer_phone_number: z.string().regex( /0[71]\d{8}/), // Not start with 254
+  customer_email: z.string().email(),
+  amount: z
+    .number({ message: Errors.INVALID_SELL_PRICE })
+    .gt(0, { message: Errors.INVALID_SELL_PRICE }),
+});
 
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
 export type STKPush = z.infer<typeof stkPushSchema>;
 export type StoreStockPurchase = z.infer<typeof storeStockPurchase>;
+export type SendMoneyTransfer = z.infer<typeof sendMoneyTransferSchema>;
