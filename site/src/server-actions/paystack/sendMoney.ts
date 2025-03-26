@@ -95,3 +95,29 @@ async function generateTransferReference(args: CreateTransferReference, retry?: 
         throw new MyError(Errors.UNKNOWN);
     }
 }
+
+export default async function sendMoneyTransfer(args: CreateTransferReference) {
+    try {
+        if (!process.env.PAYSTACK_SECRET) {
+            console.log("Set paystack secret in env variables");
+            throw new MyError(Errors.INVALID_SETUP);
+        }
+
+        const transfer_reference = await generateTransferReference(args);
+        const response = await axios.post("https://api.paystack.co/transfer", transfer_reference, {
+            headers :{
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
+            }
+        })
+
+    } catch(err) {
+        if (err instanceof MyError) {
+            if (err.message === Errors.NOT_GET_TRANSFER_REFERENCE) {
+                throw err;
+            }
+        }
+
+        console.log("Error sending transfer request", err);
+        throw new MyError(Errors.UNKNOWN);
+    }
+}
