@@ -31,7 +31,8 @@ export interface STOCKPURCHASES {
   amount_shares: number,
   buy_price: number,
   purchase_date: Date,
-  status: string
+  status: string,
+  transaction_type: string
 }
 
 export interface userstock {

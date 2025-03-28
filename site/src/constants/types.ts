@@ -22,6 +22,8 @@ export const stkPushSchema = z.object({
     .max(9, { message: Errors.INVALID_SYMBOL }),
 });
 
+const operation_options = ["buy", "sell"] as const;
+
 export const storeStockPurchase = z.object({
   mpesa_request_id: z.string().optional(),
   txHash: z.string().optional(),
@@ -38,9 +40,8 @@ export const storeStockPurchase = z.object({
     .gt(0, { message: Errors.INVALID_BUY_PRICE })
     .transform((val) => Math.ceil(val)), //round up cost to the closest shilling
   purchase_date: z.date(),
-  user_wallet: z
-    .string({ message: Errors.INVALID_WALLET })
-    .min(42, { message: Errors.INVALID_WALLET }),
+  user_wallet: z.string({ message: Errors.INVALID_WALLET }).min(42, { message: Errors.INVALID_WALLET }),
+  transaction_type: z.enum(operation_options)
 });
 
 export const sendMoneyTransferSchema = z.object({
@@ -52,7 +53,6 @@ export const sendMoneyTransferSchema = z.object({
     .gt(0, { message: Errors.INVALID_SELL_PRICE }),
 });
 
-const operation_options = ["buy", "sell"] as const;
 export const updateUserStockHoldingsSchema = z.object({
   user_address: z
     .string({ message: Errors.INVALID_WALLET })
