@@ -68,6 +68,13 @@ export const updateUserStockHoldingsSchema = z.object({
   operation: z.enum(operation_options),
 });
 
+export const notifySendSchema = z.object({
+  customer_phone_number: z.string().regex(/0[71]\d{8}/), // Not start with 254
+  amount: z
+    .number({ message: Errors.INVALID_SELL_PRICE })
+    .gt(0, { message: Errors.INVALID_SELL_PRICE }),
+});
+
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
 export type STKPush = z.infer<typeof stkPushSchema>;
 export type StoreStockPurchase = z.infer<typeof storeStockPurchase>;
@@ -75,3 +82,4 @@ export type SendMoneyTransfer = z.infer<typeof sendMoneyTransferSchema>;
 export type UpdateUserStockHoldings = z.infer<
   typeof updateUserStockHoldingsSchema
 >;
+export type NotifySend = z.infer<typeof notifySendSchema>;

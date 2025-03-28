@@ -41,5 +41,6 @@ export enum Errors {
     NOT_GET_USER_TRANSACTIONS = "Could not get user's transactions",
     MUST_STOCKS_SELL = "User must have owned stocks to sell",
     TOO_MANY_SELL = "Too many stocks sold in user history",
+    NOT_NOTIFY = "Could not notify",
     UNKNOWN = "Unkown error",
 }

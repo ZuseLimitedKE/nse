@@ -33,6 +33,7 @@
     "framer-motion": "^12.5.0",
     "lokijs": "1.x",
     "lucide-react": "^0.479.0",
+    "mailersend": "^2.4.1",
     "mongodb": "^6.14.2",
     "motion": "^12.5.0",
     "next": "15.2.3",
