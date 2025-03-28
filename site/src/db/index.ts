@@ -167,7 +167,7 @@ export class MyDatabase {
             userRecord.stocks[stockIndex].number_stocks += args.number_stock;
           } else {
             // Minus but make sure its positive
-            if (userRecord.stocks[stockIndex].number_stocks > args.number_stock) {
+            if (userRecord.stocks[stockIndex].number_stocks < args.number_stock) {
               throw new MyError(Errors.CANNOT_SELL_MORE_THAN_OWNED);
             } else {
               userRecord.stocks[stockIndex].number_stocks -= args.number_stock;
