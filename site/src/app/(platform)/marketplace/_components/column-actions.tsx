@@ -61,7 +61,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
   // }, [quantity, entry.price, form.setValue]);
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
-    const finalAmount = Math.ceil(entry.price * quantity); // Calculate amount dynamically
+    const finalAmount = entry.price * quantity; // Calculate amount dynamically
     data.amount = finalAmount; // Override the amount field
 
     if (!address || !isConnected) {

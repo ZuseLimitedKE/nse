@@ -32,11 +32,15 @@ export const storeStockPurchase = z.object({
   amount_shares: z
     .number({ message: Errors.INVALID_AMOUNT })
     .gt(0, { message: Errors.INVALID_AMOUNT })
-    .int({ message: Errors.INVALID_AMOUNT }),
-  buy_price: z.number({ message: Errors.INVALID_BUY_PRICE })
-    .gt(0, { message: Errors.INVALID_BUY_PRICE }),
+    .transform((val) => Math.floor(val)), //convert to integer after validation
+  buy_price: z
+    .number({ message: Errors.INVALID_BUY_PRICE })
+    .gt(0, { message: Errors.INVALID_BUY_PRICE })
+    .transform((val) => Math.ceil(val)), //round up cost to the closest shilling
   purchase_date: z.date(),
-  user_wallet: z.string({ message: Errors.INVALID_WALLET }).min(42, { message: Errors.INVALID_WALLET })
+  user_wallet: z
+    .string({ message: Errors.INVALID_WALLET })
+    .min(42, { message: Errors.INVALID_WALLET }),
 });
 
 export const sendMoneyTransferSchema = z.object({
@@ -48,10 +52,11 @@ export const sendMoneyTransferSchema = z.object({
     .gt(0, { message: Errors.INVALID_SELL_PRICE }),
 });
 
-
 const operation_options = ["buy", "sell"] as const;
 export const updateUserStockHoldingsSchema = z.object({
-  user_address: z.string({ message: Errors.INVALID_WALLET }).min(42, { message: Errors.INVALID_WALLET }),
+  user_address: z
+    .string({ message: Errors.INVALID_WALLET })
+    .min(42, { message: Errors.INVALID_WALLET }),
   stock_symbol: z
     .string({ message: Errors.INVALID_SYMBOL })
     .max(9, { message: Errors.INVALID_SYMBOL }),
@@ -60,11 +65,13 @@ export const updateUserStockHoldingsSchema = z.object({
     .number({ message: Errors.INVALID_AMOUNT })
     .gt(0, { message: Errors.INVALID_AMOUNT })
     .int({ message: Errors.INVALID_AMOUNT }),
-  operation: z.enum(operation_options)
-})
+  operation: z.enum(operation_options),
+});
 
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
 export type STKPush = z.infer<typeof stkPushSchema>;
 export type StoreStockPurchase = z.infer<typeof storeStockPurchase>;
 export type SendMoneyTransfer = z.infer<typeof sendMoneyTransferSchema>;
-export type UpdateUserStockHoldings = z.infer<typeof updateUserStockHoldingsSchema>;
+export type UpdateUserStockHoldings = z.infer<
+  typeof updateUserStockHoldingsSchema
+>;
