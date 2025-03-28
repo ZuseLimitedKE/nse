@@ -12,9 +12,8 @@ declare global {
       PAYSTACK_URL: string;
       PAYSTACK_SECRET: string;
       WHATSAPP_TOKEN: string;
+      WHATSAPP_PHONE_ID: string;
       NOTIFIER_NUMBER: string;
-      MAILERSEND: string;
-      NOTIFIER_MAIL: string;
     }
   }
 }
