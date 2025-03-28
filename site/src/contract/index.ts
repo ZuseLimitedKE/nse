@@ -1,7 +1,11 @@
-import { Errors, MyError } from "@/constants/errors";
-import Web3, { Web3Account } from "web3";
-import { contract, web3 } from "./account";
 
+import {
+    AccountId,
+    PrivateKey,
+    Client,
+    TokenCreateTransaction,
+    TokenType
+} from "@hashgraph/sdk";
 interface CreateStockTokenArgs {
     symbol: string;
     name: string;
@@ -16,52 +20,46 @@ interface BuyTokenArgs {
 }
 
 export class SmartContract {
-    web3: Web3;
-    constructor(web3: Web3) {
-        this.web3 = web3;
-    }
-    private async getAccount(): Promise<Web3Account> {
+    client: Client;
+    constructor(client: Client) { this.client = client; }
+    async createStock(args: CreateStockTokenArgs): Promise<string> {
         try {
-            const privateKey = process.env.PRIVATE_KEY!;
-            const account = web3.eth.accounts.privateKeyToAccount(privateKey);
-            return account;
-        } catch (err) {
-            console.log("Error getting account", err);
-            throw new MyError("Cannot get account");
-        }
-    }
-    async createStockToken(args: CreateStockTokenArgs): Promise<string> {
-        try {
-            const account = await this.getAccount();
-            const block = await web3.eth.getBlock();
-            const transaction = {
-                from: account.address,
-                to: process.env.CONTRACT,
-                data: contract.methods.tokenizeStock(
-                    args.name,
-                    args.symbol,
-                    args.identifier,
-                    BigInt(args.totalShares),
-                    BigInt(args.sharePrice)
-                ).encodeABI(),
-                maxFeePerGas: block.baseFeePerGas! * 2n,
-                maxPriorityFeePerGas: 100000,
-            };
-            const signedTransaction = await web3.eth.accounts.signTransaction(
-                transaction,
-                account.privateKey,
-            );
-            const receipt = await web3.eth.sendSignedTransaction(signedTransaction.rawTransaction);
-            return receipt.transactionHash.toString();
-        } catch (err) {
-            console.log("Error creating stock token", err);
-            throw new MyError(Errors.NOT_CREATE_STOCK_TOKEN);
-        }
-    }
+            // Your account ID and private key from string value
+            const MY_ACCOUNT_ID = AccountId.fromString(process.env.ACCOUNTID!);
+            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(process.env.PRIVATEKEY!);
+            //Set the operator with the account ID and private key
+            client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
+            //Create the transaction and freeze for manual signing
+            const txTokenCreate = await new TokenCreateTransaction()
+                .setTokenName(args.name)
+                .setTokenSymbol(args.symbol)
+                .setTokenType(TokenType.FungibleCommon)
+                .setTreasuryAccountId(MY_ACCOUNT_ID)
+                .setInitialSupply(args.totalShares)
+                .freezeWith(client);
+            //Sign the transaction with the token treasury account private key
+            const signTxTokenCreate = await txTokenCreate.sign(MY_PRIVATE_KEY);
+            //Sign the transaction with the client operator private key and submit to a Hedera network
+            const txTokenCreateResponse = await signTxTokenCreate.execute(client);
 
+            //Get the receipt of the transaction
+            const receiptTokenCreateTx = await txTokenCreateResponse.getReceipt(client);
+
+            //Get the token ID from the receipt
+            const tokenId = receiptTokenCreateTx.tokenId!;
+            return tokenId.toString()
+        }
+        catch (error) {
+            console.error("Error creating stock token:", error);
+            throw error;
+        }
+        finally {
+            if (client) client.close();
+        }
+    }
 
 
 }
-
-const smartContract = new SmartContract(web3);
+const client: Client = Client.forTestnet();
+const smartContract = new SmartContract(client);
 export default smartContract;
