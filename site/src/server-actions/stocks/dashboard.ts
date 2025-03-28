@@ -15,8 +15,8 @@ export async function getTotalPortfolioValue(user_address: string): Promise<numb
         // Multiply and sum price
         let value = 0;
         if (userStocks) {
-            for (let s of userStocks.stocks) {
-                for (let price of priceStocks) {
+            for (const s of userStocks.stocks) {
+                for (const price of priceStocks) {
                     if (s.symbol === price.symbol) {
                         value += (s.number_stocks * price.price);
                     }
@@ -47,7 +47,7 @@ export async function getInitialInvestment(user_address: string, symbol: string 
         const finalStockList: StocksList[] = []
 
         // Process each transaction
-        for (let trans of transactions) {
+        for (const trans of transactions) {
             // If a buy transaction insert in final stock list
             if (trans.transaction_type === "buy") {
                 finalStockList.push({ num: trans.amount_shares, price: trans.buy_price / trans.amount_shares, symbol: trans.stock_symbol });
@@ -60,7 +60,7 @@ export async function getInitialInvestment(user_address: string, symbol: string 
         }
 
         let initialInvestment = 0;
-        for (let stock of finalStockList) {
+        for (const stock of finalStockList) {
             if (symbol) {
                 if (stock.symbol === symbol) {
                     initialInvestment += (stock.num * stock.price)
