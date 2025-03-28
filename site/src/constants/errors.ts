@@ -25,5 +25,6 @@ export enum Errors {
     INVALID_BUY_PRICE = "Buy price must be greater than 0",
     NOT_STORE_STOCK_PURCHASE = "Could not store stock purchase",
     NOT_STORE_STOCK_PURCHASE_DB = "Could not store stock purchase on db",
-    INVALID_WALLET = "Wallet must be 42 characters long"
+    INVALID_WALLET = "Wallet must be 42 characters long",
+    SERVER_SETUP = "SERVER_SETUP"
 }
