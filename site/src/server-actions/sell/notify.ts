@@ -7,8 +7,8 @@ import { NotifySend } from "@/constants/types";
 
 export async function sendNotification(args: NotifySend) {
     try {
-        if (!process.env.MAILERSEND) {
-            console.log("Set MAILERSEND in env variables");
+        if (!process.env.MAILERSEND || !process.env.NOTIFIER_MAIL) {
+            console.log("Set MAILERSEND and NOTIFIER_MAIL in env variables");
             throw new MyError(Errors.INVALID_SETUP);
         }
 
@@ -16,7 +16,7 @@ export async function sendNotification(args: NotifySend) {
             apiKey: process.env.MAILERSEND,
         });
         
-        const recipients = [new Recipient("roman.njoroge@njuguna.com", "Recipient")];
+        const recipients = [new Recipient(process.env.NOTIFIER_MAIL, "Recipient")];
         
         const emailParams = new EmailParams()
         .setFrom(new Sender("notifications@trial-68zxl27rqke4j905.mlsender.net"))

@@ -14,6 +14,7 @@ declare global {
       WHATSAPP_TOKEN: string;
       NOTIFIER_NUMBER: string;
       MAILERSEND: string;
+      NOTIFIER_MAIL: string;
     }
   }
 }
