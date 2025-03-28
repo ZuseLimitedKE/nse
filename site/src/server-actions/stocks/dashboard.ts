@@ -2,11 +2,12 @@
 
 import { Errors, MyError } from "@/constants/errors";
 import database from "@/db";
+import { getStockPrices } from "./getStocks";
 
 export async function getTotalPortfolioValue(user_address: string): Promise<number> {
     try {
         // Get prices of all stocks
-        const priceStocks = await database.getStockPricesFromDB();
+        const priceStocks = await getStockPrices();
 
         // Get stocks of a user
         const userStocks = await database.getStocksOwnedByUser(user_address);
@@ -24,11 +25,147 @@ export async function getTotalPortfolioValue(user_address: string): Promise<numb
         }
 
         return value;
-    } catch(err) {
+    } catch (err) {
         console.log("Error getting total portfolio value", err);
         if (err instanceof MyError) {
             throw err;
         }
+        throw new MyError(Errors.UNKNOWN);
+    }
+}
+
+interface StocksList {
+    num: number,
+    price: number,
+    symbol: string
+}
+
+export async function getInitialInvestment(user_address: string, symbol: string | undefined): Promise<number> {
+    try {
+        // Get all stock transactions
+        const transactions = await database.getStockPurchases(user_address);
+        const finalStockList: StocksList[] = []
+
+        // Process each transaction
+        for (let trans of transactions) {
+            // If a buy transaction insert in final stock list
+            if (trans.transaction_type === "buy") {
+                finalStockList.push({ num: trans.amount_shares, price: trans.buy_price / trans.amount_shares, symbol: trans.stock_symbol });
+            }
+
+            if (trans.transaction_type === "sell") {
+                // Remove stock from oldest stock list record
+                removeStock({ num: trans.amount_shares, symbol: trans.stock_symbol }, finalStockList);
+            }
+        }
+
+        let initialInvestment = 0;
+        for (let stock of finalStockList) {
+            if (symbol) {
+                if (stock.symbol === symbol) {
+                    initialInvestment += (stock.num * stock.price)
+                }
+            } else {
+                initialInvestment += (stock.num * stock.price)
+            }
+        }
+
+        return initialInvestment;
+    } catch (err) {
+        console.log("Error getting initial investment", err);
+        if (err instanceof MyError) {
+            throw err;
+        }
+
+        throw new MyError(Errors.UNKNOWN);
+    }
+}
+
+function removeStock(args: { num: number, symbol: string }, stocks: StocksList[]) {
+    try {
+        if (stocks.length <= 0) {
+            throw new MyError(Errors.MUST_STOCKS_SELL);
+        }
+
+        while (args.num > 0) {
+            if (stocks.length < 1) {
+                throw new MyError(Errors.TOO_MANY_SELL);
+            }
+            const oldest = stocks.find(f => f.symbol === args.symbol);
+
+            if (oldest) {
+                const oldestIndex = stocks.indexOf(oldest);
+                if (oldest.num > args.num) {
+                    oldest.num = oldest.num - args.num;
+                    break
+                } else if (oldest.num === args.num) {
+                    stocks.splice(oldestIndex, 1);
+                    break
+                } else {
+                    args.num = args.num - oldest.num;
+                    stocks.splice(oldestIndex, 1);
+                }
+            } else {
+                throw new MyError(Errors.TOO_MANY_SELL);
+            }
+        }
+    } catch (err) {
+        console.log("Error removing items", err);
+        throw err;
+    }
+}
+
+interface StockHoldings {
+    symbol: string,
+    name: string,
+    shares: number,
+    buy_price: number,
+    current_price: number,
+    profit: number
+}
+
+export async function getStockHoldings(user_address: string): Promise<StockHoldings[]> {
+    try {
+        // Get amount of stocks owned by user
+        const stockHoldings: StockHoldings[] = [];
+        const ownedStocks = await database.getStocksOwnedByUser(user_address);
+        const stockPrices = await getStockPrices();
+
+        if (ownedStocks) {
+            // For each stock get buy price and current price
+            for (const stock of ownedStocks.stocks) {
+                // Getting current price
+                const price = stockPrices.find(f => f.symbol === stock.symbol);
+                if (price === undefined) {
+                    throw new MyError(Errors.NOT_GET_STOCK_PRICES);
+                }
+                const currentprice = price.price * stock.number_stocks;
+
+                // Getting buy price
+                const buyingPrice = await getInitialInvestment(user_address, stock.symbol);
+
+                // Getting profit
+                const profit = currentprice - buyingPrice;
+                stockHoldings.push({
+                    shares: stock.number_stocks,
+                    symbol: stock.symbol,
+                    buy_price: buyingPrice,
+                    name: stock.name,
+                    current_price: currentprice,
+                    profit
+                })
+            }   
+
+            return stockHoldings;
+        } else {
+            return [];
+        }
+    } catch (err) {
+        console.log("Error getting stock holdings", err);
+        if (err instanceof MyError) {
+            throw err;
+        }
+
         throw new MyError(Errors.UNKNOWN);
     }
 }

@@ -64,7 +64,7 @@ const getStockPricesWithCache = unstable_cache(
   { revalidate: 300 }, // 300 seconds = 5 minutes
 );
 
-async function getStockPrices(): Promise<STOCKPRICES[]> {
+export async function getStockPrices(): Promise<STOCKPRICES[]> {
   try {
     // Load the site
     const stockPrices: STOCKPRICES[] = [];

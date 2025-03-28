@@ -222,6 +222,22 @@ export class MyDatabase {
       throw new MyError(Errors.NOT_GET_USER_STOCKS);
     }
   }
+
+  async getStockPurchases(user_address: string): Promise<STOCKPURCHASES[]> {
+    try {
+      const stockPurchases: STOCKPURCHASES[] = [];
+      const cursor = STOCK_PURCHASES.find({user_wallet: user_address}).sort({purchase_date: 1});
+
+      for await (const doc of cursor) {
+        stockPurchases.push(doc);
+      }
+
+      return stockPurchases
+    } catch(err) {
+      console.log("Error getting stock purchases", err);
+      throw new MyError(Errors.NOT_GET_USER_TRANSACTIONS);
+    }
+  }
 }
 
 const database = new MyDatabase();
