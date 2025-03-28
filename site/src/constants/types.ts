@@ -13,7 +13,7 @@ export const stkPushSchema = z.object({
   amount: z
     .number({ message: Errors.INVALID_AMOUNT })
     .gt(0, { message: Errors.INVALID_AMOUNT })
-    .int({ message: Errors.INVALID_AMOUNT }),
+    .transform((val) => Math.ceil(val)), //round up to next shilling
   customer_phone_number: z
     .string({ message: Errors.INVALID_PHONE_NUMBER })
     .regex(/254\d{9}/, { message: Errors.INVALID_PHONE_NUMBER }),
