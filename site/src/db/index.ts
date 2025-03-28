@@ -212,6 +212,16 @@ export class MyDatabase {
       throw new MyError(Errors.UNKNOWN);
     }
   }
+
+  async getStocksOwnedByUser(user_address: string): Promise<USERSTOCKS | null> {
+    try {
+      const stocks = await USER_STOCKS.findOne({user_address});
+      return stocks
+    } catch(err) {
+      console.log("Error getting stocks owned by user", err);
+      throw new MyError(Errors.NOT_GET_USER_STOCKS);
+    }
+  }
 }
 
 const database = new MyDatabase();

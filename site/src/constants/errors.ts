@@ -37,5 +37,6 @@ export enum Errors {
     NOT_CREATE_NEW_STOCK_RECORD_SELL = "Cannot add a new stock to user if its a sell",
     NOT_REPLACE_USER_STOCK = "Could not replace user stock record",
     NOT_UPDATE_USER_STOCKS = "Could not update record of stocks user owns",
+    NOT_GET_USER_STOCKS = "Could not get stocks owned by user",
     UNKNOWN = "Unkown error",
 }
