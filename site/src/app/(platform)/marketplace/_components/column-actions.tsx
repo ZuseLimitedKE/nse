@@ -1,6 +1,6 @@
 "use client";
 import { StockData } from "@/types";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldErrors } from "react-hook-form";
@@ -48,17 +48,22 @@ export function ColumnActions({ entry }: { entry: StockData }) {
       customer_phone_number: "",
       stock_symbol: entry.symbol,
     },
+    // mode: "onSubmit",
   });
 
   // Update the form value when quantity changes
-  useEffect(() => {
-    form.setValue("amount", Math.ceil(entry.price * quantity), {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }, [quantity, entry.price, form]);
+  // useEffect(() => {
+  //   form.setValue("amount", Math.ceil(entry.price * quantity), {
+  //     shouldValidate: true,
+  //     shouldDirty: true,
+  //   });
+  //   console.log("effect ran");
+  // }, [quantity, entry.price, form.setValue]);
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
+    const finalAmount = Math.ceil(entry.price * quantity); // Calculate amount dynamically
+    data.amount = finalAmount; // Override the amount field
+
     if (!address || !isConnected) {
       toast.warning("you need to connect your wallet in order to proceed");
       return;
@@ -67,12 +72,15 @@ export function ColumnActions({ entry }: { entry: StockData }) {
     setIsSubmitting(true);
 
     try {
-      const mpesa_request_id = await sendSTKPush(data);
+      const mpesa_request_id = await sendSTKPush({
+        ...data,
+        amount: finalAmount,
+      });
       await store_stock_purchase({
         stock_symbol: data.stock_symbol,
         name: entry.name,
         amount_shares: quantity,
-        buy_price: data.amount,
+        buy_price: finalAmount,
         mpesa_request_id: mpesa_request_id,
         user_wallet: address,
         purchase_date: new Date(),
@@ -106,6 +114,13 @@ export function ColumnActions({ entry }: { entry: StockData }) {
     });
   };
 
+  // Log form state changes for debugging
+  // useEffect(() => {
+  //   const subscription = form.watch((value) => {
+  //     console.log("Form values changed:", value);
+  //   });
+  //   return () => subscription.unsubscribe();
+  // }, [form]);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -162,26 +177,6 @@ export function ColumnActions({ entry }: { entry: StockData }) {
                   <FormDescription>Enter your phone number</FormDescription>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="stock_symbol"
-              render={({ field }) => (
-                <input type="hidden" {...field} value={entry.symbol} />
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <input
-                  type="hidden"
-                  {...field}
-                  value={Math.ceil(entry.price * quantity)}
-                />
               )}
             />
 
