@@ -6,12 +6,27 @@ import {
   STOCKPURCHASES,
   STOCKS,
   STOCKS_COLLECTION,
+  USER_STOCKS,
+  USERSTOCKS,
 } from "./collections";
+import { ObjectId } from "mongodb";
 
 interface GetStocks {
   id: string;
   name: string;
   symbol: string;
+}
+
+interface UpdateStockAmount {
+  user_address: string,
+  stock_symbol: string,
+  stock_name: string,
+  number_stock: number,
+  operation: "buy" | "sell"
+}
+
+interface USERSTOCKSWITHID extends USERSTOCKS {
+  _id: ObjectId
 }
 
 export class MyDatabase {
@@ -80,9 +95,121 @@ export class MyDatabase {
   async storeStockPurchase(args: STOCKPURCHASES) {
     try {
       await STOCK_PURCHASES.insertOne(args);
-    } catch(err) {
+    } catch (err) {
       console.log("Could not store stock purchase", err);
       throw new MyError(Errors.NOT_STORE_STOCK_PURCHASE_DB);
+    }
+  }
+
+  private async _userHasStockOwnRecord(user_address: string): Promise<USERSTOCKSWITHID | null> {
+    try {
+      const document = await USER_STOCKS.findOne({ user_address: user_address });
+      if (document) {
+        return document;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      console.log(err);
+      throw new MyError(Errors.NOT_CHECK_USER_STOCKS_DB);
+    }
+  }
+
+  private async _createNewUserStockRecord(args: UpdateStockAmount) {
+    try {
+      await USER_STOCKS.insertOne({
+        user_address: args.user_address,
+        stocks: [
+          {
+            symbol: args.stock_symbol,
+            name: args.stock_name,
+            number_stocks: args.number_stock
+          }
+        ]
+      });
+    } catch (err) {
+      console.log(err);
+      throw new MyError(Errors.NOT_CREATE_NEW_USER_STOCKS_DB);
+    }
+  }
+
+  private async _replaceUserStocksRecord(args: USERSTOCKSWITHID) {
+    try {
+      await USER_STOCKS.replaceOne({_id: args._id}, args);
+    } catch(err) {
+      console.log("Could not replace document", err);
+      throw new MyError(Errors.NOT_REPLACE_USER_STOCK);
+    }
+  }
+
+  async updateNumberStocksOwnedByUser(args: UpdateStockAmount) {
+    try {
+      // Check if user already has a record
+      const userRecord = await this._userHasStockOwnRecord(args.user_address);
+
+      // If so update users record
+      if (userRecord) {
+        // Check if user has record of the stock
+        let doesUserOwnStock = false;
+        let stockIndex = 0;
+        while (stockIndex < userRecord.stocks.length) {
+          if (userRecord.stocks[stockIndex].symbol === args.stock_symbol) {
+            doesUserOwnStock = true;
+            break;
+          }
+          stockIndex++;
+        }
+
+        // If user owns update the value
+        if (doesUserOwnStock) {
+          // If buy increment
+          if (args.operation == "buy") {
+            userRecord.stocks[stockIndex].number_stocks += args.number_stock;
+          } else {
+            // Minus but make sure its positive
+            if (userRecord.stocks[stockIndex].number_stocks < args.number_stock) {
+              throw new MyError(Errors.CANNOT_SELL_MORE_THAN_OWNED);
+            } else {
+              userRecord.stocks[stockIndex].number_stocks -= args.number_stock;
+            }
+          }
+        } else {
+          // Create new value
+          if (args.operation === "buy") {
+            userRecord.stocks.push({
+              symbol: args.stock_symbol,
+              name: args.stock_name,
+              number_stocks: args.number_stock
+            })
+          } else {
+            // Throw error cause cannot create new sell record
+            throw new MyError(Errors.NOT_CREATE_NEW_STOCK_RECORD_SELL);
+          }
+        }
+
+        // Update db
+        await this._replaceUserStocksRecord(userRecord);
+      }
+      // Otherwise create new record
+      else {
+        if (args.operation == "buy") {
+          await this._createNewUserStockRecord(args);
+        } else {
+          throw new MyError(Errors.NOT_CREATE_NEW_RECORD_SELL);
+        }
+      }
+
+    } catch (err) {
+      console.log("Error updating record", err);
+      if (err instanceof MyError) {
+        if (err.message === Errors.NOT_CREATE_NEW_RECORD_SELL || err.message === Errors.NOT_CREATE_NEW_STOCK_RECORD_SELL || err.message === Errors.CANNOT_SELL_MORE_THAN_OWNED) {
+          throw err;
+        } else {
+          throw new MyError(Errors.UNKNOWN)
+        }
+      } 
+
+      throw new MyError(Errors.UNKNOWN);
     }
   }
 }

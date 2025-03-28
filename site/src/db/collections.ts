@@ -4,6 +4,7 @@ const dbName = "orion";
 const stocksCollection = "stocks";
 const stockPricesCollection = "stockPrices";
 const stockPurchases = "stockPurchases";
+const userStocks = "userStocks";
 const database = client.db(dbName);
 
 // Types
@@ -33,7 +34,19 @@ export interface STOCKPURCHASES {
   status: string
 }
 
+export interface userstock {
+  symbol: string,
+  name: string,
+  number_stocks: number
+}
+
+export interface USERSTOCKS {
+  user_address: string,
+  stocks: userstock[]
+}
+
 // Collections
 export const STOCKS_COLLECTION = database.collection<STOCKS>(stocksCollection);
 export const STOCK_PRICES_COLLECTIONS = database.collection<STOCKPRICES>(stockPricesCollection);
 export const STOCK_PURCHASES = database.collection<STOCKPURCHASES>(stockPurchases);
+export const USER_STOCKS = database.collection<USERSTOCKS>(userStocks);
