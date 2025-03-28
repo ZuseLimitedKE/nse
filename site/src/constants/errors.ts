@@ -30,5 +30,12 @@ export enum Errors {
     NOT_MAKE_PAYMENT_REQUEST = "Could not make paystack payment request",
     NOT_GET_RECEPIENT_CODE = "Could not get recepient code",
     NOT_GET_TRANSFER_REFERENCE = "Could not get transfer reference",
+    NOT_CHECK_USER_STOCKS_DB = "Could not get user stocks from db",
+    NOT_CREATE_NEW_USER_STOCKS_DB = "Could not record new user entry in user stocks",
+    NOT_CREATE_NEW_RECORD_SELL = "Canot create a new user entry for sell",
+    CANNOT_SELL_MORE_THAN_OWNED = "Cannot sell more than is owned",
+    NOT_CREATE_NEW_STOCK_RECORD_SELL = "Cannot add a new stock to user if its a sell",
+    NOT_REPLACE_USER_STOCK = "Could not replace user stock record",
+    NOT_UPDATE_USER_STOCKS = "Could not update record of stocks user owns",
     UNKNOWN = "Unkown error",
 }
