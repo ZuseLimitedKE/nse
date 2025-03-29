@@ -1,4 +1,5 @@
 
+import { Errors, MyError } from "@/constants/errors";
 import {
     AccountId,
     PrivateKey,
@@ -20,21 +21,33 @@ interface BuyTokenArgs {
 }
 
 export class SmartContract {
-    client: Client;
-    constructor(client: Client) { this.client = client; }
+    private accountID: string;
+    private privateKey: string;
+    
+    constructor() { 
+        if (!process.env.ACCOUNTID || !process.env.PRIVATEKEY) {
+            console.log("Set PRIVATEKEY and ACCOUNTID in env variables");
+            throw new MyError(Errors.INVALID_SETUP);
+        }
+
+        this.accountID = process.env.ACCOUNTID;
+        this.privateKey = process.env.PRIVATEKEY;
+    }
     async createStock(args: CreateStockTokenArgs): Promise<string> {
+        const client: Client = Client.forTestnet();
         try {
             // Your account ID and private key from string value
-            const MY_ACCOUNT_ID = AccountId.fromString(process.env.ACCOUNTID!);
-            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(process.env.PRIVATEKEY!);
+            const MY_ACCOUNT_ID = AccountId.fromString(this.accountID);
+            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
             //Set the operator with the account ID and private key
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
             //Create the transaction and freeze for manual signing
-            const txTokenCreate = await new TokenCreateTransaction()
+            const txTokenCreate = new TokenCreateTransaction()
                 .setTokenName(args.name)
                 .setTokenSymbol(args.symbol)
                 .setTokenType(TokenType.FungibleCommon)
                 .setTreasuryAccountId(MY_ACCOUNT_ID)
+                .setFreezeDefault(false)
                 .setInitialSupply(args.totalShares)
                 .freezeWith(client);
             //Sign the transaction with the token treasury account private key
@@ -56,7 +69,14 @@ export class SmartContract {
         }
     }
     async buyStock(args: BuyTokenArgs): Promise<string> {
+        const client: Client = Client.forTestnet();
         try {
+            // Your account ID and private key from string value
+            const MY_ACCOUNT_ID = AccountId.fromString(this.accountID);
+            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
+            //Set the operator with the account ID and private key
+            client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
+
             //Create the transfer transaction
             const txTransfer = await new TransferTransaction()
                 .addTokenTransfer(args.tokenId, args.userWalletAddress, args.amount) //Fill in the token ID 
@@ -81,8 +101,15 @@ export class SmartContract {
         }
     }
     async sellStock(args: BuyTokenArgs): Promise<string> {
+        const client: Client = Client.forTestnet();
         try {
             //Create the transfer transaction
+            // Your account ID and private key from string value
+            const MY_ACCOUNT_ID = AccountId.fromString(this.accountID);
+            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
+            //Set the operator with the account ID and private key
+            client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
+
             const txTransfer = await new TransferTransaction()
                 .addTokenTransfer(args.tokenId, args.userWalletAddress, -args.amount) //Fill in the token ID 
                 .freezeWith(client);
@@ -106,7 +133,14 @@ export class SmartContract {
         }
     }
     async getTokeNInformation(tokenId: string): Promise<TokenInfo> {
+        const client: Client = Client.forTestnet();
         try {
+            // Your account ID and private key from string value
+            const MY_ACCOUNT_ID = AccountId.fromString(this.accountID);
+            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
+            //Set the operator with the account ID and private key
+            client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
+            
             const tokenInfoQuery = new TokenInfoQuery()
                 .setTokenId(tokenId);
             //Sign with the client operator private key, submit the query to the network and get the token supply
@@ -123,6 +157,5 @@ export class SmartContract {
     }
 
 }
-const client: Client = Client.forTestnet();
-const smartContract = new SmartContract(client);
+const smartContract = new SmartContract();
 export default smartContract;

@@ -14,6 +14,8 @@ declare global {
       WHATSAPP_TOKEN: string;
       WHATSAPP_PHONE_ID: string;
       NOTIFIER_NUMBER: string;
+      ACCOUNTID: string;
+      PRIVATEKEY: string;
     }
   }
 }
