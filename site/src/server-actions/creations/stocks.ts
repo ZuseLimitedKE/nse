@@ -1,27 +1,29 @@
 "use server";
 import { Errors, MyError } from "@/constants/errors";
-import { TokenizeStock } from "@/constants/types";
 import { revalidatePath } from "next/cache";
 import smartContract from "@/contract";
 import database from "@/db";
+import { CreateStockTokenArgs } from "@/types/stocks";
 
-export async function createStock(args: TokenizeStock) {
+export async function createStock(args: CreateStockTokenArgs) {
   try {
-    // TODO: Function to get current stock price
-    const todayPrice = 100;
-
-    // Create stock in smart contract
-    const tokenAddress = await smartContract.createStockToken({
-      symbol: args.symbol,
-      name: args.name,
-    });
-    // Create stock in DB
-    await database.createStockInDB({ ...args, tokenAddress, todayPrice });
+    //Check if the stock with the symbol exists
+    const stockExists = await database.checkIfStockExists(args.symbol);
+    if (stockExists) {
+        return stockExists;
+    }
+    //Call the function to create the token onchain
+    const tokenId = await smartContract.createStock({ symbol: args.symbol, name: args.name, totalShares: args.totalShares, });
+    //Save the stock token to the database
+    await database.createStockInDB({ tokenID: tokenId, symbol: args.symbol, name: args.name, totalShares: args.totalShares, todayPrice: args.sharePrice });
   } catch (err) {
     console.log("Error creating stock", err);
     throw new MyError(Errors.NOT_CREATE_STOCK);
   }
 }
+
+
+
 interface IStocks {
   id: number;
   symbol: string;

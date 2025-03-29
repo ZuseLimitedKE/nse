@@ -14,6 +14,7 @@ export interface STOCKS {
   todayPrice: number;
   totalShares: number;
   stockID?: string;
+  tokenID: string;
 }
 
 export interface STOCKPRICES {
