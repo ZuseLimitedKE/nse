@@ -61,7 +61,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
   // }, [quantity, entry.price, form.setValue]);
   // Handle form submission
   const onSubmit = async (data: FormValues) => {
-    const finalAmount = entry.price * quantity; // Calculate amount dynamically
+    const finalAmount = Math.ceil(entry.price * quantity); // Calculate amount dynamically
     data.amount = finalAmount; // Override the amount field
 
     if (!address || !isConnected) {
@@ -84,7 +84,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         mpesa_request_id: mpesa_request_id,
         user_wallet: address,
         purchase_date: new Date(),
-        transaction_type: "buy"
+        transaction_type: "buy",
       });
       await updateUserStockHoldings({
         stock_symbol: data.stock_symbol,
