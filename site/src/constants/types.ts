@@ -40,8 +40,10 @@ export const storeStockPurchase = z.object({
     .gt(0, { message: Errors.INVALID_BUY_PRICE })
     .transform((val) => Math.ceil(val)), //round up cost to the closest shilling
   purchase_date: z.date(),
-  user_wallet: z.string({ message: Errors.INVALID_WALLET }).min(42, { message: Errors.INVALID_WALLET }),
-  transaction_type: z.enum(operation_options)
+  user_wallet: z
+    .string({ message: Errors.INVALID_WALLET })
+    .min(42, { message: Errors.INVALID_WALLET }),
+  transaction_type: z.enum(operation_options),
 });
 
 export const sendMoneyTransferSchema = z.object({
@@ -64,7 +66,8 @@ export const updateUserStockHoldingsSchema = z.object({
   number_stock: z
     .number({ message: Errors.INVALID_AMOUNT })
     .gt(0, { message: Errors.INVALID_AMOUNT })
-    .int({ message: Errors.INVALID_AMOUNT }),
+    .transform((val) => Math.floor(val)), //round up cost to the closest shilling
+
   operation: z.enum(operation_options),
 });
 
