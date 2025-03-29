@@ -55,7 +55,7 @@ export class SmartContract {
             if (client) client.close();
         }
     }
-    async buyStock(args: BuyTokenArgs) {
+    async buyStock(args: BuyTokenArgs): Promise<string> {
         try {
             //Create the transfer transaction
             const txTransfer = await new TransferTransaction()
@@ -68,12 +68,9 @@ export class SmartContract {
             //Sign with the client operator private key and submit to a Hedera network
             const txTransferResponse = await signTxTransfer.execute(client);
 
-            //Request the receipt of the transaction
-            const receiptTransferTx = await txTransferResponse.getReceipt(client);
-            //Obtain the transaction consensus status
-            const statusTransferTx = receiptTransferTx.status;
             //Get the Transaction ID
             const txTransferId = txTransferResponse.transactionId.toString();
+            return txTransferId;
         }
         catch (error) {
             console.error("Error buying stock:", error);
@@ -83,7 +80,7 @@ export class SmartContract {
             if (client) client.close();
         }
     }
-    async sellStock(args: BuyTokenArgs) {
+    async sellStock(args: BuyTokenArgs): Promise<string> {
         try {
             //Create the transfer transaction
             const txTransfer = await new TransferTransaction()
@@ -96,12 +93,9 @@ export class SmartContract {
             //Sign with the client operator private key and submit to a Hedera network
             const txTransferResponse = await signTxTransfer.execute(client);
 
-            //Request the receipt of the transaction
-            const receiptTransferTx = await txTransferResponse.getReceipt(client);
-            //Obtain the transaction consensus status
-            const statusTransferTx = receiptTransferTx.status;
             //Get the Transaction ID
             const txTransferId = txTransferResponse.transactionId.toString();
+            return txTransferId;
         }
         catch (error) {
             console.error("Error selling stock:", error);
