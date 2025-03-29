@@ -4,14 +4,14 @@ import {
     PrivateKey,
     Client,
     TokenCreateTransaction,
-    TokenType
+    TokenType, TransferTransaction, TokenInfoQuery,
+    TokenInfo
 } from "@hashgraph/sdk";
+import 'dotenv/config'
 interface CreateStockTokenArgs {
     symbol: string;
     name: string;
-    identifier: string;
     totalShares: number;
-    sharePrice: number
 }
 interface BuyTokenArgs {
     tokenId: string;
@@ -41,10 +41,8 @@ export class SmartContract {
             const signTxTokenCreate = await txTokenCreate.sign(MY_PRIVATE_KEY);
             //Sign the transaction with the client operator private key and submit to a Hedera network
             const txTokenCreateResponse = await signTxTokenCreate.execute(client);
-
             //Get the receipt of the transaction
             const receiptTokenCreateTx = await txTokenCreateResponse.getReceipt(client);
-
             //Get the token ID from the receipt
             const tokenId = receiptTokenCreateTx.tokenId!;
             return tokenId.toString()
@@ -57,7 +55,78 @@ export class SmartContract {
             if (client) client.close();
         }
     }
+    async buyStock(args: BuyTokenArgs) {
+        try {
+            //Create the transfer transaction
+            const txTransfer = await new TransferTransaction()
+                .addTokenTransfer(args.tokenId, args.userWalletAddress, args.amount) //Fill in the token ID 
+                .freezeWith(client);
 
+            //Sign with the sender account private key
+            const signTxTransfer = await txTransfer.sign(PrivateKey.fromStringED25519(process.env.PRIVATEKEY!));
+
+            //Sign with the client operator private key and submit to a Hedera network
+            const txTransferResponse = await signTxTransfer.execute(client);
+
+            //Request the receipt of the transaction
+            const receiptTransferTx = await txTransferResponse.getReceipt(client);
+            //Obtain the transaction consensus status
+            const statusTransferTx = receiptTransferTx.status;
+            //Get the Transaction ID
+            const txTransferId = txTransferResponse.transactionId.toString();
+        }
+        catch (error) {
+            console.error("Error buying stock:", error);
+            throw error;
+        }
+        finally {
+            if (client) client.close();
+        }
+    }
+    async sellStock(args: BuyTokenArgs) {
+        try {
+            //Create the transfer transaction
+            const txTransfer = await new TransferTransaction()
+                .addTokenTransfer(args.tokenId, args.userWalletAddress, -args.amount) //Fill in the token ID 
+                .freezeWith(client);
+
+            //Sign with the sender account private key
+            const signTxTransfer = await txTransfer.sign(PrivateKey.fromStringED25519(process.env.PRIVATEKEY!));
+
+            //Sign with the client operator private key and submit to a Hedera network
+            const txTransferResponse = await signTxTransfer.execute(client);
+
+            //Request the receipt of the transaction
+            const receiptTransferTx = await txTransferResponse.getReceipt(client);
+            //Obtain the transaction consensus status
+            const statusTransferTx = receiptTransferTx.status;
+            //Get the Transaction ID
+            const txTransferId = txTransferResponse.transactionId.toString();
+        }
+        catch (error) {
+            console.error("Error selling stock:", error);
+            throw error;
+        }
+        finally {
+            if (client) client.close();
+        }
+    }
+    async getTokeNInformation(tokenId: string): Promise<TokenInfo> {
+        try {
+            const tokenInfoQuery = new TokenInfoQuery()
+                .setTokenId(tokenId);
+            //Sign with the client operator private key, submit the query to the network and get the token supply
+            const tokenInfoQueryResponse = await tokenInfoQuery.execute(client);
+            return tokenInfoQueryResponse;
+        }
+        catch (error) {
+            console.log("Error getting token information:", error);
+            throw error;
+        }
+        finally {
+            if (client) client.close();
+        }
+    }
 
 }
 const client: Client = Client.forTestnet();
