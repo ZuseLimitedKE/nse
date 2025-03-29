@@ -12,7 +12,7 @@ export interface STOCKS {
   symbol: string;
   name: string;
   todayPrice: number;
-  tokenAddress: string;
+  totalShares: number;
   stockID?: string;
 }
 

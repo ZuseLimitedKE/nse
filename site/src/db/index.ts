@@ -38,6 +38,16 @@ export class MyDatabase {
       throw new MyError(Errors.NOT_CREATE_STOCK_DB);
     }
   }
+  async checkIfStockExists(symbol: string){
+    try{
+        const stock = await STOCKS_COLLECTION.findOne({ symbol });
+        return stock !== null;
+    }
+    catch(err){
+        console.log("Error checking if stock exists", err);
+        throw new MyError("Error checking if stock exists");
+    }
+  }
 
   async getStocks(): Promise<GetStocks[]> {
     try {
