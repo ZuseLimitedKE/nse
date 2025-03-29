@@ -38,10 +38,14 @@ const stockFormSchema = z.object({
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(100, "Name must be 100 characters or less"),
-  identifier: z
+  totalShares: z
     .string()
-    .min(3, "Identifier must be at least 3 characters")
-    .max(50, "Identifier must be 50 characters or less"),
+    .transform((val) => parseInt(val))
+    .pipe(z.number().gt(0, "must be greater than 0")),
+  sharePrice: z
+    .string()
+    .transform((val) => parseInt(val))
+    .pipe(z.number().gt(0, "must be greater than 0")),
 });
 
 // Defines the form value type from the schema
@@ -51,7 +55,8 @@ type StockFormValues = z.infer<typeof stockFormSchema>;
 const defaultValues: Partial<StockFormValues> = {
   symbol: "",
   name: "",
-  identifier: "",
+  totalShares: 0,
+  sharePrice: 0,
 };
 
 export const TokenizeStockForm = () => {
@@ -97,7 +102,7 @@ export const TokenizeStockForm = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
               <FormField
                 control={form.control}
                 name="symbol"
@@ -134,21 +139,44 @@ export const TokenizeStockForm = () => {
 
               <FormField
                 control={form.control}
-                name="identifier"
+                name="totalShares"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Unique Identifier</FormLabel>
+                    <FormLabel>Total Shares</FormLabel>
                     <FormControl>
-                      <Input placeholder="apple-inc-2023" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="enter the total number of shares"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
-                      A unique identifier for this tokenized stock
+                      The total number of shares available
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
+              <FormField
+                control={form.control}
+                name="sharePrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Share Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="enter the cost of a single share"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The cost of a single share
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button type="submit" className="w-full font-semibold md:w-auto">
                 {isSubmitting ? (
                   <Spinner className="mr-1 h-4 w-4 text-white" />
