@@ -3,6 +3,7 @@
 import { Errors, MyError } from "@/constants/errors";
 import { GetGraphData } from "@/constants/types";
 import database from "@/db";
+import { getInitialInvestment } from "../stocks/dashboard";
 
 interface GraphData {
     value: number,
@@ -21,9 +22,21 @@ export default async function getGraphData(args: GetGraphData): Promise<GraphDat
             throw new MyError(Errors.INVALID_FROM_TO_DATE);
         }
 
-        // Return data from database
-        const purchases = await database.getStockPurchases(args.user_address);
-        return [];
+        const dates = _getDatesInRange(args.from, args.to, args.mode);
+        const graphData: GraphData[] = [];
+
+        for (let date of dates) {
+            const investmentAtPoint = await getInitialInvestment({
+                user_address: args.user_address,
+                date
+            });
+            graphData.push({
+                value: investmentAtPoint,
+                date
+            })
+        }
+
+        return graphData;
     } catch(err) {
         console.log("Error getting graph data", err);
         if (err instanceof MyError) {
@@ -63,10 +76,3 @@ function _getDatesInRange(from: Date, to: Date, mode: GraphDataMode): Date[] {
 
     return dates;
 }
-
-(async () => {
-    const from = new Date(2025, 0, 1);
-    const to = new Date(2025, 2, 30)
-    const dates = _getDatesInRange(from, to, GraphDataMode.WEEKLY);
-    console.log(dates)
-})();
