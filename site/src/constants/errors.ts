@@ -42,5 +42,7 @@ export enum Errors {
     MUST_STOCKS_SELL = "User must have owned stocks to sell",
     TOO_MANY_SELL = "Too many stocks sold in user history",
     NOT_NOTIFY = "Could not notify",
+    INVALID_FROM_TO_DATE = "From date must be after to date",
+    NOT_GET_GRAPH_DATA = "Could not get graph data",
     UNKNOWN = "Unkown error",
 }
