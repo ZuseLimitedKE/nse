@@ -40,14 +40,26 @@ interface StocksList {
     symbol: string
 }
 
-export async function getInitialInvestment(user_address: string, symbol: string | undefined): Promise<number> {
+interface InitialInvestmentArgs {
+    user_address: string,
+    symbol?: string,
+    date?: Date
+}
+
+export async function getInitialInvestment(args: InitialInvestmentArgs): Promise<number> {
     try {
         // Get all stock transactions
-        const transactions = await database.getStockPurchases(user_address);
+        const transactions = await database.getStockPurchases(args.user_address);
         const finalStockList: StocksList[] = []
 
         // Process each transaction
         for (const trans of transactions) {
+            if (args.date) {
+                if (trans.purchase_date > args.date) {
+                    break
+                }
+            }
+
             // If a buy transaction insert in final stock list
             if (trans.transaction_type === "buy") {
                 finalStockList.push({ num: trans.amount_shares, price: trans.buy_price / trans.amount_shares, symbol: trans.stock_symbol });
@@ -61,8 +73,8 @@ export async function getInitialInvestment(user_address: string, symbol: string 
 
         let initialInvestment = 0;
         for (const stock of finalStockList) {
-            if (symbol) {
-                if (stock.symbol === symbol) {
+            if (args.symbol) {
+                if (stock.symbol === args.symbol) {
                     initialInvestment += (stock.num * stock.price)
                 }
             } else {
@@ -142,7 +154,7 @@ export async function getStockHoldings(user_address: string): Promise<StockHoldi
                 const currentprice = price.price * stock.number_stocks;
 
                 // Getting buy price
-                const buyingPrice = await getInitialInvestment(user_address, stock.symbol);
+                const buyingPrice = await getInitialInvestment({user_address, symbol: stock.symbol});
 
                 // Getting profit
                 const profit = currentprice - buyingPrice;
