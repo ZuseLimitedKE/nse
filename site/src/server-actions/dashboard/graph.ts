@@ -1,18 +1,12 @@
 "use server"
 
 import { Errors, MyError } from "@/constants/errors";
-import { GetGraphData } from "@/constants/types";
-import database from "@/db";
+import { GetGraphData, GraphDataMode } from "@/constants/types";
 import { getInitialInvestment } from "../stocks/dashboard";
 
 interface GraphData {
     value: number,
     date: Date
-}
-
-export enum GraphDataMode {
-    WEEKLY = "weekly",
-    MONTHLY = "monthly"
 }
 
 export default async function getGraphData(args: GetGraphData): Promise<GraphData[]> {
@@ -25,7 +19,7 @@ export default async function getGraphData(args: GetGraphData): Promise<GraphDat
         const dates = _getDatesInRange(args.from, args.to, args.mode);
         const graphData: GraphData[] = [];
 
-        for (let date of dates) {
+        for (const date of dates) {
             const investmentAtPoint = await getInitialInvestment({
                 user_address: args.user_address,
                 date

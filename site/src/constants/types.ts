@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { Errors } from "./errors";
-import { GraphDataMode } from "@/server-actions/dashboard/graph";
+
+export enum GraphDataMode {
+    WEEKLY = "weekly",
+    MONTHLY = "monthly"
+}
 
 export const tokenizeStockSchema = z.object({
   symbol: z
