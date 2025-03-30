@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Errors } from "./errors";
+import { GraphDataMode } from "@/server-actions/dashboard/graph";
 
 export const tokenizeStockSchema = z.object({
   symbol: z
@@ -78,6 +79,17 @@ export const notifySendSchema = z.object({
     .gt(0, { message: Errors.INVALID_SELL_PRICE }),
 });
 
+const modes = [GraphDataMode.MONTHLY, GraphDataMode.WEEKLY] as const;
+
+export const getGraphDataSchema = z.object({
+  from: z.date({message: "From date must be a date"}),
+  to: z.date({message: "To date must be a date"}),
+  mode: z.enum(modes, {message: "Graph mode can be either weekly or monthly"}),
+  user_address: z
+    .string({ message: Errors.INVALID_WALLET })
+    .min(42, { message: Errors.INVALID_WALLET }),
+})
+
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
 export type STKPush = z.infer<typeof stkPushSchema>;
 export type StoreStockPurchase = z.infer<typeof storeStockPurchase>;
@@ -86,3 +98,4 @@ export type UpdateUserStockHoldings = z.infer<
   typeof updateUserStockHoldingsSchema
 >;
 export type NotifySend = z.infer<typeof notifySendSchema>;
+export type GetGraphData = z.infer<typeof getGraphDataSchema>;
