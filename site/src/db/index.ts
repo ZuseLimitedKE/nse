@@ -262,7 +262,7 @@ export class MyDatabase {
     try {
       await STOCK_PURCHASES_COLLECTION.updateOne({_id: id}, {$set: {status}});
     } catch(err) {
-      console.log("Error upeating stock purchase status");
+      console.log("Error upeating stock purchase status", err);
       throw new MyError(Errors.NOT_UPDATE_PURCHASE_STATUS_DB);
     }
   }
