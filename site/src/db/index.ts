@@ -242,10 +242,10 @@ export class MyDatabase {
     }
   }
 
-  async getStockPurchases(user_address: string): Promise<STOCKPURCHASES[]> {
+  async getStockPurchases(user_address: string, status: PaymentStatus): Promise<STOCKPURCHASES[]> {
     try {
       const stockPurchases: STOCKPURCHASES[] = [];
-      const cursor = STOCK_PURCHASES_COLLECTION.find({user_wallet: user_address}).sort({purchase_date: 1});
+      const cursor = STOCK_PURCHASES_COLLECTION.find({user_wallet: user_address, status}).sort({purchase_date: 1});
 
       for await (const doc of cursor) {
         stockPurchases.push(doc);

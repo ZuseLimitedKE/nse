@@ -3,6 +3,7 @@
 import { Errors, MyError } from "@/constants/errors";
 import database from "@/db";
 import { getStockPrices } from "./getStocks";
+import { PaymentStatus } from "@/constants/status";
 
 export async function getTotalPortfolioValue(user_address: string): Promise<number> {
     try {
@@ -49,7 +50,7 @@ interface InitialInvestmentArgs {
 export async function getInitialInvestment(args: InitialInvestmentArgs): Promise<number> {
     try {
         // Get all stock transactions
-        const transactions = await database.getStockPurchases(args.user_address);
+        const transactions = await database.getStockPurchases(args.user_address, PaymentStatus.PAID);
         const finalStockList: StocksList[] = []
 
         // Process each transaction
