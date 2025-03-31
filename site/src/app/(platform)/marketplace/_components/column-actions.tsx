@@ -86,13 +86,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         purchase_date: new Date(),
         transaction_type: "buy",
       });
-      await updateUserStockHoldings({
-        stock_symbol: data.stock_symbol,
-        stock_name: entry.name,
-        number_stock: quantity,
-        user_address: address,
-        operation: "buy",
-      });
+      
       // Show success message
       toast.info(`Sent, waiting for payment confirmation...`);
 

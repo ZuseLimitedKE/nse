@@ -3,6 +3,7 @@ import { PaymentStatus } from "@/constants/status";
 import smartContract from "@/contract";
 import database from "@/db";
 import "../../../envConfig";
+import updateUserStockHoldings from "../stocks/update_stock_holdings";
 
 export default async function markRequestAsPaid(mpesa_id: string) {
     try {
@@ -25,10 +26,19 @@ export default async function markRequestAsPaid(mpesa_id: string) {
                 userWalletAddress: request.user_wallet,
                 amount: request.amount_shares
             });
+
+            // Update stock holdings
+            await updateUserStockHoldings({
+                stock_symbol: request.stock_symbol,
+                stock_name: request.name,
+                number_stock: request.amount_shares,
+                user_address: request.user_wallet,
+                operation: "buy",
+            });
         } else {
-            console.log("Payment with that mpesa id does not exist", mpesa_id); 
+            console.log("Payment with that mpesa id does not exist", mpesa_id);
         }
-    } catch(err) {
+    } catch (err) {
         console.log("Could not mark request as paid");
         if (err instanceof MyError) {
             throw err;
