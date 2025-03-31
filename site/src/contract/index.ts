@@ -8,6 +8,8 @@ import {
     TokenType, TransferTransaction, TokenInfoQuery,
     TokenInfo
 } from "@hashgraph/sdk";
+import "../../envConfig";
+
 import 'dotenv/config'
 interface CreateStockTokenArgs {
     symbol: string;
@@ -78,8 +80,9 @@ export class SmartContract {
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
 
             //Create the transfer transaction
-            const txTransfer = await new TransferTransaction()
+            const txTransfer = new TransferTransaction()
                 .addTokenTransfer(args.tokenId, args.userWalletAddress, args.amount) //Fill in the token ID 
+                .addTokenTransfer(args.tokenId, this.accountID, -1 * args.amount)
                 .freezeWith(client);
 
             //Sign with the sender account private key
@@ -111,7 +114,8 @@ export class SmartContract {
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
 
             const txTransfer = await new TransferTransaction()
-                .addTokenTransfer(args.tokenId, args.userWalletAddress, -args.amount) //Fill in the token ID 
+                .addTokenTransfer(args.tokenId, args.userWalletAddress, -args.amount)
+                .addTokenTransfer(args.tokenId, this.accountID, args.amount) //Fill in the token ID 
                 .freezeWith(client);
 
             //Sign with the sender account private key
