@@ -50,5 +50,5 @@ export interface USERSTOCKS {
 // Collections
 export const STOCKS_COLLECTION = database.collection<STOCKS>(stocksCollection);
 export const STOCK_PRICES_COLLECTIONS = database.collection<STOCKPRICES>(stockPricesCollection);
-export const STOCK_PURCHASES = database.collection<STOCKPURCHASES>(stockPurchases);
-export const USER_STOCKS = database.collection<USERSTOCKS>(userStocks);
+export const STOCK_PURCHASES_COLLECTION = database.collection<STOCKPURCHASES>(stockPurchases);
+export const USER_STOCKS_COLLECTION = database.collection<USERSTOCKS>(userStocks);
