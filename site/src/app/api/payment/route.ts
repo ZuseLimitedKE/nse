@@ -1,6 +1,7 @@
 import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
 
 export async function POST(request: Request) {
+  console.log("Webhook got called");
   // Check if the payment was succesful
   const data = await request.json();
   if (!data.Body.stkCallback.CallbackMetadata) {

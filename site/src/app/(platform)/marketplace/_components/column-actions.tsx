@@ -32,7 +32,6 @@ import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
 import { useAppKitAccount } from "@reown/appkit/react";
-import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // Defines the form value type from the schema
 type FormValues = z.infer<typeof stkPushSchema>;
 
