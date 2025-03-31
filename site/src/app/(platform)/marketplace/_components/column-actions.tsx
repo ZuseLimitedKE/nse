@@ -32,7 +32,7 @@ import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
 import { useAppKitAccount } from "@reown/appkit/react";
-import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
+// import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // Defines the form value type from the schema
 type FormValues = z.infer<typeof stkPushSchema>;
 
@@ -86,7 +86,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         purchase_date: new Date(),
         transaction_type: "buy",
       });
-      
+
       // Show success message
       toast.info(`Sent, waiting for payment confirmation...`);
 
