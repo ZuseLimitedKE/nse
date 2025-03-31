@@ -4,7 +4,7 @@ import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import {
   IconArrowLeft,
   IconBrandTabler,
-  IconSettings,
+  // IconSettings,
   IconSocial,
   IconUserExclamation,
 } from "@tabler/icons-react";
@@ -31,12 +31,12 @@ export function PlatformSidebar() {
       href: "/marketplace",
       icon: <IconSocial className="h-5 w-5 shrink-0" />,
     },
-    {
-      label: "Settings",
-      href: "/settings",
-      icon: <IconSettings className="h-5 w-5 shrink-0" />,
-    },
-
+    // {
+    //   label: "Settings",
+    //   href: "/settings",
+    //   icon: <IconSettings className="h-5 w-5 shrink-0" />,
+    // },
+    //
     {
       label: "Logout",
       href: "/",
