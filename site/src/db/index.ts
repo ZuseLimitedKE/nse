@@ -30,6 +30,10 @@ interface USERSTOCKSWITHID extends USERSTOCKS {
   _id: ObjectId
 }
 
+interface STOCKPURCHASESWITHID extends STOCKPURCHASES {
+  _id: ObjectId
+}
+
 export class MyDatabase {
   async createStockInDB(args: STOCKS) {
     try {
@@ -254,11 +258,22 @@ export class MyDatabase {
     }
   }
 
-  async updateStockPurchaseStatus(id: ObjectId, status: PaymentStatus) {
+  async updateSalePurchaseStatus(id: ObjectId, status: PaymentStatus) {
     try {
       await STOCK_PURCHASES.updateOne({_id: id}, {$set: {status}});
     } catch(err) {
-      console.log("Error upeating stock purchase status")
+      console.log("Error upeating stock purchase status");
+      throw new MyError(Errors.NOT_UPDATE_PURCHASE_STATUS_DB);
+    }
+  }
+
+  async getRequestFromID(mpesa_id: string): Promise<STOCKPURCHASESWITHID | null> {
+    try {
+      const doc = await STOCK_PURCHASES.findOne({mpesa_request_id: mpesa_id});
+      return doc ?? null;
+    } catch(err) {
+      console.log("Could not get purchase from mpesa id", mpesa_id, err);
+      throw new MyError(Errors.NOT_GET_MPESA_PAYMENT);
     }
   }
 }
