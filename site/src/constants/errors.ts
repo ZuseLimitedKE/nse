@@ -46,5 +46,6 @@ export enum Errors {
     NOT_GET_GRAPH_DATA = "Could not get graph data",
     NOT_UPDATE_PURCHASE_STATUS_DB = "Could not update sale status in db",
     NOT_GET_MPESA_PAYMENT = "Could not get payment from mpesa request id",
+    NOT_GET_STOCK_DB = "Could not get stock from DB",
     UNKNOWN = "Unkown error",
 }
