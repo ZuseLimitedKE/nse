@@ -10,6 +10,7 @@ import {
   USERSTOCKS,
 } from "./collections";
 import { ObjectId } from "mongodb";
+import { PaymentStatus } from "@/constants/status";
 
 interface GetStocks {
   id: string;
@@ -250,6 +251,14 @@ export class MyDatabase {
     } catch(err) {
       console.log("Error getting stock purchases", err);
       throw new MyError(Errors.NOT_GET_USER_TRANSACTIONS);
+    }
+  }
+
+  async updateStockPurchaseStatus(id: ObjectId, status: PaymentStatus) {
+    try {
+      await STOCK_PURCHASES.updateOne({_id: id}, {$set: {status}});
+    } catch(err) {
+      console.log("Error upeating stock purchase status")
     }
   }
 }
