@@ -1,15 +1,16 @@
 import { Errors, MyError } from "@/constants/errors";
 import {
   STOCK_PRICES_COLLECTIONS,
-  STOCK_PURCHASES,
+  STOCK_PURCHASES_COLLECTION,
   STOCKPRICES,
   STOCKPURCHASES,
   STOCKS,
   STOCKS_COLLECTION,
-  USER_STOCKS,
+  USER_STOCKS_COLLECTION,
   USERSTOCKS,
 } from "./collections";
 import { ObjectId } from "mongodb";
+import { PaymentStatus } from "@/constants/status";
 
 interface GetStocks {
   id: string;
@@ -26,6 +27,10 @@ interface UpdateStockAmount {
 }
 
 interface USERSTOCKSWITHID extends USERSTOCKS {
+  _id: ObjectId
+}
+
+interface STOCKPURCHASESWITHID extends STOCKPURCHASES {
   _id: ObjectId
 }
 
@@ -108,7 +113,7 @@ export class MyDatabase {
 
   async storeStockPurchase(args: STOCKPURCHASES) {
     try {
-      await STOCK_PURCHASES.insertOne(args);
+      await STOCK_PURCHASES_COLLECTION.insertOne(args);
     } catch (err) {
       console.log("Could not store stock purchase", err);
       throw new MyError(Errors.NOT_STORE_STOCK_PURCHASE_DB);
@@ -117,7 +122,7 @@ export class MyDatabase {
 
   private async _userHasStockOwnRecord(user_address: string): Promise<USERSTOCKSWITHID | null> {
     try {
-      const document = await USER_STOCKS.findOne({ user_address: user_address });
+      const document = await USER_STOCKS_COLLECTION.findOne({ user_address: user_address });
       if (document) {
         return document;
       } else {
@@ -131,7 +136,7 @@ export class MyDatabase {
 
   private async _createNewUserStockRecord(args: UpdateStockAmount) {
     try {
-      await USER_STOCKS.insertOne({
+      await USER_STOCKS_COLLECTION.insertOne({
         user_address: args.user_address,
         stocks: [
           {
@@ -149,7 +154,7 @@ export class MyDatabase {
 
   private async _replaceUserStocksRecord(args: USERSTOCKSWITHID) {
     try {
-      await USER_STOCKS.replaceOne({_id: args._id}, args);
+      await USER_STOCKS_COLLECTION.replaceOne({_id: args._id}, args);
     } catch(err) {
       console.log("Could not replace document", err);
       throw new MyError(Errors.NOT_REPLACE_USER_STOCK);
@@ -229,7 +234,7 @@ export class MyDatabase {
 
   async getStocksOwnedByUser(user_address: string): Promise<USERSTOCKS | null> {
     try {
-      const stocks = await USER_STOCKS.findOne({user_address});
+      const stocks = await USER_STOCKS_COLLECTION.findOne({user_address});
       return stocks
     } catch(err) {
       console.log("Error getting stocks owned by user", err);
@@ -237,10 +242,10 @@ export class MyDatabase {
     }
   }
 
-  async getStockPurchases(user_address: string): Promise<STOCKPURCHASES[]> {
+  async getStockPurchases(user_address: string, status: PaymentStatus): Promise<STOCKPURCHASES[]> {
     try {
       const stockPurchases: STOCKPURCHASES[] = [];
-      const cursor = STOCK_PURCHASES.find({user_wallet: user_address}).sort({purchase_date: 1});
+      const cursor = STOCK_PURCHASES_COLLECTION.find({user_wallet: user_address, status}).sort({purchase_date: 1});
 
       for await (const doc of cursor) {
         stockPurchases.push(doc);
@@ -250,6 +255,35 @@ export class MyDatabase {
     } catch(err) {
       console.log("Error getting stock purchases", err);
       throw new MyError(Errors.NOT_GET_USER_TRANSACTIONS);
+    }
+  }
+
+  async updateSalePurchaseStatus(id: ObjectId, status: PaymentStatus) {
+    try {
+      await STOCK_PURCHASES_COLLECTION.updateOne({_id: id}, {$set: {status}});
+    } catch(err) {
+      console.log("Error upeating stock purchase status");
+      throw new MyError(Errors.NOT_UPDATE_PURCHASE_STATUS_DB);
+    }
+  }
+
+  async getRequestFromID(mpesa_id: string): Promise<STOCKPURCHASESWITHID | null> {
+    try {
+      const doc = await STOCK_PURCHASES_COLLECTION.findOne({mpesa_request_id: mpesa_id});
+      return doc ?? null;
+    } catch(err) {
+      console.log("Could not get purchase from mpesa id", mpesa_id, err);
+      throw new MyError(Errors.NOT_GET_MPESA_PAYMENT);
+    }
+  }
+
+  async getTokenDetails(symbol: string): Promise<STOCKS | null> {
+    try {
+      const doc = await STOCKS_COLLECTION.findOne({symbol});
+      return doc ?? null;
+    } catch(err) {
+      console.log("Could not get token details of", symbol, err);
+      throw new MyError(Errors.NOT_GET_STOCK_DB);
     }
   }
 }
