@@ -44,6 +44,10 @@ export const columns: ColumnDef<StockData>[] = [
     header: "Change",
   },
   {
+    accessorKey: "tokenID",
+    header: "Token ID"
+  },
+  {
     id: "actions",
     header: "Actions",
 
