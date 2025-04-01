@@ -2,8 +2,8 @@ import { z } from "zod";
 import { Errors } from "./errors";
 
 export enum GraphDataMode {
-    WEEKLY = "weekly",
-    MONTHLY = "monthly"
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
 }
 
 export const tokenizeStockSchema = z.object({
@@ -71,8 +71,8 @@ export const updateUserStockHoldingsSchema = z.object({
   number_stock: z
     .number({ message: Errors.INVALID_AMOUNT })
     .gt(0, { message: Errors.INVALID_AMOUNT })
-    .transform((val) => Math.floor(val)), //round up cost to the closest shilling
-  tokenId: z.string({message: "Token id must be a string"}),
+    .transform((val) => Math.floor(val)),
+  tokenId: z.string({ message: "Token id must be a string" }),
   operation: z.enum(operation_options),
 });
 
@@ -86,13 +86,15 @@ export const notifySendSchema = z.object({
 const modes = [GraphDataMode.MONTHLY, GraphDataMode.WEEKLY] as const;
 
 export const getGraphDataSchema = z.object({
-  from: z.date({message: "From date must be a date"}),
-  to: z.date({message: "To date must be a date"}),
-  mode: z.enum(modes, {message: "Graph mode can be either weekly or monthly"}),
+  from: z.date({ message: "From date must be a date" }),
+  to: z.date({ message: "To date must be a date" }),
+  mode: z.enum(modes, {
+    message: "Graph mode can be either weekly or monthly",
+  }),
   user_address: z
     .string({ message: Errors.INVALID_WALLET })
     .min(42, { message: Errors.INVALID_WALLET }),
-})
+});
 
 export type TokenizeStock = z.infer<typeof tokenizeStockSchema>;
 export type STKPush = z.infer<typeof stkPushSchema>;

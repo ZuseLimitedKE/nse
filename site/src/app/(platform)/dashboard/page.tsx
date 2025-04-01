@@ -59,7 +59,10 @@ import {
 } from "@/server-actions/stocks/dashboard";
 import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
 import { TransferTransaction } from "@hashgraph/sdk";
+import { transferHbar } from "@/server-actions/contracts/transfer_hbar";
+import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 interface StockHoldings {
+  tokenId: string;
   symbol: string;
   name: string;
   shares: number;
@@ -193,24 +196,38 @@ const DashBoardPage = () => {
       toast.warning("No stock selected or wallet disconnected");
       return;
     }
+    setIsSelling(true);
 
     try {
-      setIsSelling(true);
       // Implement sell logic here
       // await sellStock(address, selectedStock.symbol, sellQuantity);
       const currentPricePerShare =
         selectedStock.current_price / selectedStock.shares;
       const saleAmount = currentPricePerShare * sellQuantity;
-      await sellToken(saleAmount, "0.0.5793783");
+      await sellToken(saleAmount, selectedStock.tokenId);
       // Send notification
-      await sendNotification({
-        customer_phone_number: phoneNumber,
-        amount: saleAmount,
-        // stock_symbol: selectedStock.symbol,
-        // shares: sellQuantity.toString() ,
-        // You can add more details if needed
+      if (paymentMethod === "mobile") {
+        await sendNotification({
+          customer_phone_number: phoneNumber,
+          amount: saleAmount,
+          // stock_symbol: selectedStock.symbol,
+          // shares: sellQuantity.toString() ,
+          // You can add more details if needed
+        });
+      } else {
+        await transferHbar({
+          userAddress: address,
+          amount: saleAmount,
+        });
+      }
+      await updateUserStockHoldings({
+        user_address: address,
+        stock_symbol: selectedStock.symbol,
+        stock_name: selectedStock.name,
+        number_stock: sellQuantity,
+        tokenId: selectedStock.tokenId,
+        operation: "sell",
       });
-
       toast.success(
         `Sold ${sellQuantity} shares of ${selectedStock.symbol} for KSH ${saleAmount.toLocaleString(
           "en-KE",
