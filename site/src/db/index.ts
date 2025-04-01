@@ -15,6 +15,7 @@ import { PaymentStatus } from "@/constants/status";
 interface GetStocks {
   id: string;
   name: string;
+  tokenID: string;
   symbol: string;
 }
 
@@ -64,12 +65,13 @@ export class MyDatabase {
       const stocks: GetStocks[] = [];
       const cursor = STOCKS_COLLECTION.find(
         {},
-        { projection: { id: 1, name: 1, symbol: 1 } },
+        { projection: { id: 1, name: 1, symbol: 1, tokenID: 1 } },
       );
       for await (const doc of cursor) {
         stocks.push({
           id: doc._id.toString(),
           name: doc.name,
+          tokenID: doc.tokenID,
           symbol: doc.symbol,
         });
       }
