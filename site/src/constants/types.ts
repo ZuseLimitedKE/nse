@@ -72,7 +72,7 @@ export const updateUserStockHoldingsSchema = z.object({
     .number({ message: Errors.INVALID_AMOUNT })
     .gt(0, { message: Errors.INVALID_AMOUNT })
     .transform((val) => Math.floor(val)), //round up cost to the closest shilling
-
+  tokenId: z.string({message: "Token id must be a string"}),
   operation: z.enum(operation_options),
 });
 

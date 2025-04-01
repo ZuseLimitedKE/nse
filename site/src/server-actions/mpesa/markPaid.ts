@@ -31,6 +31,7 @@ export default async function markRequestAsPaid(mpesa_id: string) {
 
             // Update stock holdings
             await updateUserStockHoldings({
+                tokenId: stock.tokenID,
                 stock_symbol: request.stock_symbol,
                 stock_name: request.name,
                 number_stock: request.amount_shares,
