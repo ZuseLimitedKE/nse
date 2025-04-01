@@ -3,8 +3,9 @@ import { HWBridgeProvider } from "@buidlerlabs/hashgraph-react-wallets";
 import { HWCConnector } from "@buidlerlabs/hashgraph-react-wallets/connectors";
 import {
   HederaTestnet,
-//   HederaMainnet,
+  //   HederaMainnet,
 } from "@buidlerlabs/hashgraph-react-wallets/chains";
+import LoadingFallback from "@/components/ui/wallet-loading-fallback";
 
 const metadata = {
   name: "Orion",
@@ -27,6 +28,7 @@ export const ReactWalletsProvider = ({
       projectId={projectId}
       connectors={[HWCConnector]}
       chains={[HederaTestnet]}
+      LoadingFallback={LoadingFallback}
     >
       {children}
     </HWBridgeProvider>
