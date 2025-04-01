@@ -32,12 +32,19 @@ import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
 // import { useAppKitAccount } from "@reown/appkit/react";
-import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import { HederaSignerType, HWBridgeSigner, useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
 import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
+import { getIfUserHasOwnedStock } from "@/server-actions/stocks/get_user_own_stock";
+import { TokenAssociateTransaction } from "@hashgraph/sdk";
 
 // import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // Defines the form value type from the schema
 type FormValues = z.infer<typeof stkPushSchema>;
+
+function isHederaSigner(signer: HWBridgeSigner): signer is HederaSignerType {
+  // Check based on properties that are unique to HederaSignerType
+  return (signer as HederaSignerType).topic !== undefined;
+}
 
 export function ColumnActions({ entry }: { entry: StockData }) {
   const [quantity, setQuantity] = useState(1);
@@ -45,6 +52,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
   // const { isConnected, address } = useAppKitAccount();
   const { isConnected } = useWallet();
   const { data: accountId } = useAccountId();
+  const { signer } = useWallet();
 
   // Initialize the form
   const form = useForm<FormValues>({
@@ -92,6 +100,30 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         purchase_date: new Date(),
         transaction_type: "buy",
       });
+
+      const userOwnStock = await getIfUserHasOwnedStock(accountId, data.stock_symbol);
+
+      // Associate token
+      if (!userOwnStock) {
+        if (!signer) {
+          toast.error("Wallet not connected");
+          return;
+        }
+        if (!isHederaSigner(signer)) {
+          toast.error("Invalid signer");
+          return;
+        }
+
+        console.log("Does not own token");
+        const txTokenAssociate = new TokenAssociateTransaction()
+          .setAccountId(accountId)
+          .setTokenIds([entry.tokenID]) //Fill in the token ID
+          
+
+        //Sign with the private key of the account that is being associated to a token 
+        const signTxTokenAssociate = await txTokenAssociate.freezeWithSigner(signer);
+        signTxTokenAssociate.executeWithSigner(signer);
+      }
 
       // Mark payment as paid
       await markRequestAsPaid(mpesa_request_id);

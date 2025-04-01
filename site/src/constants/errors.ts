@@ -49,5 +49,6 @@ export enum Errors {
     NOT_GET_STOCK_DB = "Could not get stock from DB",
     STOCK_NOT_EXIST = "Stock does not exist",
     NOT_TRANSFER_HBAR = "Could not transfer hbar",
+    NOT_GET_USER_OWN_STOCK = "Could not get if user owns stock",
     UNKNOWN = "Unkown error",
 }

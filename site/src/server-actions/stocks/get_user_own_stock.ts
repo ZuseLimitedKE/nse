@@ -6,6 +6,7 @@ import "../../../envConfig";
 
 export async function getIfUserHasOwnedStock(address: string, symbol: string): Promise<boolean> {
     try {
+        return false;
         // Get stocks owned by user
         const stocks = await database.getStocksOwnedByUser(address);
 
