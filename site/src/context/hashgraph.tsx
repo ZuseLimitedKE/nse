@@ -2,8 +2,8 @@
 import { HWBridgeProvider } from "@buidlerlabs/hashgraph-react-wallets";
 import { HWCConnector } from "@buidlerlabs/hashgraph-react-wallets/connectors";
 import {
-  // HederaTestnet,
-  HederaMainnet,
+  HederaTestnet,
+//   HederaMainnet,
 } from "@buidlerlabs/hashgraph-react-wallets/chains";
 import LoadingFallback from "@/components/ui/wallet-loading-fallback";
 
@@ -27,9 +27,7 @@ export const ReactWalletsProvider = ({
       metadata={metadata}
       projectId={projectId}
       connectors={[HWCConnector]}
-      //change to test net
-      LoadingFallback={LoadingFallback}
-      chains={[HederaMainnet]}
+      chains={[HederaTestnet]}
     >
       {children}
     </HWBridgeProvider>
