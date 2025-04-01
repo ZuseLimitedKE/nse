@@ -612,7 +612,7 @@ const DashBoardPage = () => {
                                     onClick={() => setPaymentMethod("eth")}
                                     className="flex-1"
                                   >
-                                    ETH
+                                    HBAR
                                   </Button>
                                 </div>
                               </div>
