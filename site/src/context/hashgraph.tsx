@@ -5,7 +5,6 @@ import {
   HederaTestnet,
 //   HederaMainnet,
 } from "@buidlerlabs/hashgraph-react-wallets/chains";
-import LoadingFallback from "@/components/ui/wallet-loading-fallback";
 
 const metadata = {
   name: "Orion",

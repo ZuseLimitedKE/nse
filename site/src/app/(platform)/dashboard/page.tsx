@@ -54,8 +54,8 @@ import {
     getTotalPortfolioValue,
     getInitialInvestment,
 } from "@/server-actions/stocks/dashboard";
-import { useAccountId, useWallet, useAssociateTokens } from "@buidlerlabs/hashgraph-react-wallets";
-import { Signer, TokenAssociateTransaction, TransferTransaction } from "@hashgraph/sdk";
+import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import { TransferTransaction } from "@hashgraph/sdk";
 interface StockHoldings {
     symbol: string;
     name: string;
@@ -256,7 +256,7 @@ const DashBoardPage = () => {
             .addTokenTransfer(object.tokenId, "0.0.5785413", 1) //Fill in the token ID and receiver account
 
         const signedTx = await transferTokenTx.freezeWithSigner(signer);
-        const txResponse = await signedTx.executeWithSigner(signer)
+        await signedTx.executeWithSigner(signer)
     }
 
     // Modify your connection handling UI
