@@ -16,6 +16,7 @@ declare global {
       NOTIFIER_NUMBER: string;
       ACCOUNTID: string;
       PRIVATEKEY: string;
+      CONVERSION_KEY: string;
     }
   }
 }
