@@ -2,8 +2,8 @@
 import { HWBridgeProvider } from "@buidlerlabs/hashgraph-react-wallets";
 import { HWCConnector } from "@buidlerlabs/hashgraph-react-wallets/connectors";
 import {
-  // HederaTestnet,
-  HederaMainnet,
+  HederaTestnet,
+//   HederaMainnet,
 } from "@buidlerlabs/hashgraph-react-wallets/chains";
 
 const metadata = {
@@ -27,7 +27,7 @@ export const ReactWalletsProvider = ({
       projectId={projectId}
       connectors={[HWCConnector]}
       //change to test net
-      chains={[HederaMainnet]}
+      chains={[HederaTestnet]}
     >
       {children}
     </HWBridgeProvider>
