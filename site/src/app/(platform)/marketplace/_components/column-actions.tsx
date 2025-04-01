@@ -101,7 +101,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         transaction_type: "buy",
       });
 
-      const userOwnStock = await getIfUserHasOwnedStock(accountId, data.stock_symbol);
+      const userOwnStock = await getIfUserHasOwnedStock(accountId, entry.tokenID);
 
       // Associate token
       if (!userOwnStock) {
@@ -122,7 +122,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
 
         //Sign with the private key of the account that is being associated to a token 
         const signTxTokenAssociate = await txTokenAssociate.freezeWithSigner(signer);
-        signTxTokenAssociate.executeWithSigner(signer);
+        await signTxTokenAssociate.executeWithSigner(signer);
       }
 
       // Mark payment as paid

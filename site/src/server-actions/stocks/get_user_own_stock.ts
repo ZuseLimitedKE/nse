@@ -4,7 +4,7 @@ import { Errors, MyError } from "@/constants/errors";
 import database from "@/db"
 import "../../../envConfig";
 
-export async function getIfUserHasOwnedStock(address: string, symbol: string): Promise<boolean> {
+export async function getIfUserHasOwnedStock(address: string, tokenID: string): Promise<boolean> {
     try {
         // Get stocks owned by user
         const stocks = await database.getStocksOwnedByUser(address);
@@ -14,7 +14,7 @@ export async function getIfUserHasOwnedStock(address: string, symbol: string): P
         }
 
         for (let s of stocks.stocks) {
-            if (s.symbol === symbol) {
+            if (s.tokenId === tokenID) {
                 return true;
             }
         }
