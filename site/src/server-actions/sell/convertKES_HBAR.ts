@@ -1,5 +1,3 @@
-"use server"
-
 import axios from "axios";
 import "../../../envConfig";
 import { Errors, MyError } from "@/constants/errors";
