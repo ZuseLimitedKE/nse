@@ -31,7 +31,9 @@ import { IconShoppingCart } from "@tabler/icons-react";
 import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
-import { useAppKitAccount } from "@reown/appkit/react";
+// import { useAppKitAccount } from "@reown/appkit/react";
+import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+
 // import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // Defines the form value type from the schema
 type FormValues = z.infer<typeof stkPushSchema>;
@@ -39,7 +41,10 @@ type FormValues = z.infer<typeof stkPushSchema>;
 export function ColumnActions({ entry }: { entry: StockData }) {
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isConnected, address } = useAppKitAccount();
+  // const { isConnected, address } = useAppKitAccount();
+  const { isConnected } = useWallet();
+  const { data: accountId } = useAccountId();
+
   // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(stkPushSchema),
@@ -64,7 +69,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
     const finalAmount = Math.ceil(entry.price * quantity); // Calculate amount dynamically
     data.amount = finalAmount; // Override the amount field
 
-    if (!address || !isConnected) {
+    if (!accountId || !isConnected) {
       toast.warning("you need to connect your wallet in order to proceed");
       return;
     }
@@ -82,7 +87,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         amount_shares: quantity,
         buy_price: finalAmount,
         mpesa_request_id: mpesa_request_id,
-        user_wallet: address,
+        user_wallet: accountId,
         purchase_date: new Date(),
         transaction_type: "buy",
       });
