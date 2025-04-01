@@ -103,7 +103,7 @@ export class SmartContract {
             if (client) client.close();
         }
     }
-    async transferHbar(args: { userAddress: string, amount: number, tokenId: string }) {
+    async transferHbar(args: { userAddress: string, amount: number}) {
         const client: Client = Client.forTestnet();
         try {
             // Your account ID and private key from string value
@@ -114,6 +114,7 @@ export class SmartContract {
 
             const txTransfer = new TransferTransaction()
                 .addHbarTransfer(args.userAddress, args.amount)
+                .addHbarTransfer(this.accountID, -args.amount)
                 .freezeWith(client);
 
             //Sign with the sender account private key

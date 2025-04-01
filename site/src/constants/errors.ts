@@ -48,5 +48,6 @@ export enum Errors {
     NOT_GET_MPESA_PAYMENT = "Could not get payment from mpesa request id",
     NOT_GET_STOCK_DB = "Could not get stock from DB",
     STOCK_NOT_EXIST = "Stock does not exist",
+    NOT_TRANSFER_HBAR = "Could not transfer hbar",
     UNKNOWN = "Unkown error",
 }
