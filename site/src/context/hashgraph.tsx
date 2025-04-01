@@ -5,6 +5,7 @@ import {
   HederaTestnet,
 //   HederaMainnet,
 } from "@buidlerlabs/hashgraph-react-wallets/chains";
+import LoadingFallback from "@/components/ui/wallet-loading-fallback";
 
 const metadata = {
   name: "Orion",
@@ -26,7 +27,6 @@ export const ReactWalletsProvider = ({
       metadata={metadata}
       projectId={projectId}
       connectors={[HWCConnector]}
-      //change to test net
       chains={[HederaTestnet]}
     >
       {children}
