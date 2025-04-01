@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
 // import { useAppKitAccount } from "@reown/appkit/react";
 import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
 
 // import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // Defines the form value type from the schema
@@ -91,6 +92,9 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         purchase_date: new Date(),
         transaction_type: "buy",
       });
+
+      // Mark payment as paid
+      await markRequestAsPaid(mpesa_request_id);
 
       // Show success message
       toast.info(`Sent, waiting for payment confirmation...`);
