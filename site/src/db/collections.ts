@@ -39,7 +39,8 @@ export interface STOCKPURCHASES {
 export interface userstock {
   symbol: string,
   name: string,
-  number_stocks: number
+  number_stocks: number,
+  tokenId: string
 }
 
 export interface USERSTOCKS {
