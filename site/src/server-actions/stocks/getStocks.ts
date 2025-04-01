@@ -46,6 +46,7 @@ export async function getStocks(): Promise<StockData[]> {
         name: s.name,
         price: entry?.price ?? 0.0,
         change: entry?.change ?? 0.0,
+        tokenID: s.tokenID
       };
     });
     // return stocks;
