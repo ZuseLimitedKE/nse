@@ -122,11 +122,16 @@ export function ColumnActions({ entry }: { entry: StockData }) {
 
         //Sign with the private key of the account that is being associated to a token 
         const signTxTokenAssociate = await txTokenAssociate.freezeWithSigner(signer);
+        console.log("Signing");
         await signTxTokenAssociate.executeWithSigner(signer);
+        console.log("Finished signing");
       }
 
+      console.log("Starting to mark request as made");
       // Mark payment as paid
       await markRequestAsPaid(mpesa_request_id);
+      
+      console.log("Mark as request made");
 
       // Show success message
       toast.info(`Sent, waiting for payment confirmation...`);
