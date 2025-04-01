@@ -1,9 +1,9 @@
 "use client";
-import { WalletButton } from "@/components/wallet-button";
+// import { WalletButton } from "@/components/wallet-button";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { HashGraphWalletButton } from "./hashgraph-wallet-button";
 export function Navbar() {
-  //TODO: CHANGE THIS
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   return (
@@ -21,7 +21,7 @@ export function Navbar() {
             <div className=" text-xl font-semibold">ORION</div>
           </div>
         </div>
-        <WalletButton />
+        <HashGraphWalletButton />
       </div>
     </header>
   );
