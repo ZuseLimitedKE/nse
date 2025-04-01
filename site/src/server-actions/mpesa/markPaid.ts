@@ -1,3 +1,5 @@
+"use server"
+
 import { Errors, MyError } from "@/constants/errors";
 import { PaymentStatus } from "@/constants/status";
 import smartContract from "@/contract";
