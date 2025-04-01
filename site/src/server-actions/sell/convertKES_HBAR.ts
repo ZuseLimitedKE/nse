@@ -11,7 +11,9 @@ export async function convertKESToHBAR(kes: number): Promise<number> {
             throw new MyError(Errors.INVALID_SETUP);
         }
         // Get conversion rates
-        const response = await axios(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.CONVERSION_KEY}`);
+        const response = await axios(`https://api.currencyfreaks.com/v2.0/rates/latest?apikey=${process.env.CONVERSION_KEY}`, {
+            timeout: 5000,
+        });
         if (response.data) {
             if (response.data.rates) {
                 const rates = response.data.rates;
