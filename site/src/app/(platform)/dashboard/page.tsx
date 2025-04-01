@@ -59,7 +59,9 @@ import {
 } from "@/server-actions/stocks/dashboard";
 import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
 import { TransferTransaction } from "@hashgraph/sdk";
+import { transferHbar } from "@/server-actions/contracts/transfer_hbar";
 interface StockHoldings {
+  tokenId: string;
   symbol: string;
   name: string;
   shares: number;
@@ -201,16 +203,22 @@ const DashBoardPage = () => {
       const currentPricePerShare =
         selectedStock.current_price / selectedStock.shares;
       const saleAmount = currentPricePerShare * sellQuantity;
-      await sellToken(saleAmount, "0.0.5793783");
+      await sellToken(saleAmount, selectedStock.tokenId);
       // Send notification
-      await sendNotification({
-        customer_phone_number: phoneNumber,
-        amount: saleAmount,
-        // stock_symbol: selectedStock.symbol,
-        // shares: sellQuantity.toString() ,
-        // You can add more details if needed
-      });
-
+      if (paymentMethod === "mobile") {
+        await sendNotification({
+          customer_phone_number: phoneNumber,
+          amount: saleAmount,
+          // stock_symbol: selectedStock.symbol,
+          // shares: sellQuantity.toString() ,
+          // You can add more details if needed
+        });
+      } else {
+        await transferHbar({
+          userAddress: address,
+          amount: saleAmount,
+        });
+      }
       toast.success(
         `Sold ${sellQuantity} shares of ${selectedStock.symbol} for KSH ${saleAmount.toLocaleString(
           "en-KE",
