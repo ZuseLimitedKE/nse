@@ -23,7 +23,8 @@ interface UpdateStockAmount {
   stock_symbol: string,
   stock_name: string,
   number_stock: number,
-  operation: "buy" | "sell"
+  operation: "buy" | "sell",
+  tokenId: string
 }
 
 interface USERSTOCKSWITHID extends USERSTOCKS {
@@ -142,7 +143,8 @@ export class MyDatabase {
           {
             symbol: args.stock_symbol,
             name: args.stock_name,
-            number_stocks: args.number_stock
+            number_stocks: args.number_stock,
+            tokenId: args.tokenId
           }
         ]
       });
@@ -198,7 +200,8 @@ export class MyDatabase {
             userRecord.stocks.push({
               symbol: args.stock_symbol,
               name: args.stock_name,
-              number_stocks: args.number_stock
+              number_stocks: args.number_stock,
+              tokenId: args.tokenId
             })
           } else {
             // Throw error cause cannot create new sell record
