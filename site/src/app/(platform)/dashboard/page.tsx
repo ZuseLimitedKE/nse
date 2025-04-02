@@ -207,6 +207,7 @@ const DashBoardPage = () => {
       await sellToken(saleAmount, selectedStock.tokenId);
       // Send notification
       if (paymentMethod === "mobile") {
+        console.log("Mobile payment selected");
         await sendNotification({
           customer_phone_number: phoneNumber,
           amount: saleAmount,
@@ -214,12 +215,16 @@ const DashBoardPage = () => {
           // shares: sellQuantity.toString() ,
           // You can add more details if needed
         });
+        console.log("Payment done");
       } else {
+        console.log("HBAR option selected");
         await transferHbar({
           userAddress: address,
           amount: saleAmount,
         });
+        console.log("HBAR sent")
       }
+      console.log("Beginning to update stock holdings");
       await updateUserStockHoldings({
         user_address: address,
         stock_symbol: selectedStock.symbol,
@@ -228,6 +233,7 @@ const DashBoardPage = () => {
         tokenId: selectedStock.tokenId,
         operation: "sell",
       });
+      console.log("Updated holdings");
       toast.success(
         `Sold ${sellQuantity} shares of ${selectedStock.symbol} for KSH ${saleAmount.toLocaleString(
           "en-KE",
@@ -272,11 +278,14 @@ const DashBoardPage = () => {
       return;
     }
     const transferTokenTx = new TransferTransaction()
-      .addTokenTransfer(object.tokenId, accountId, -1) //Fill in the token ID
-      .addTokenTransfer(object.tokenId, "0.0.5785413", 1); //Fill in the token ID and receiver account
+      .addTokenTransfer(object.tokenId, accountId, -amount) //Fill in the token ID
+      .addTokenTransfer(object.tokenId, "0.0.5785413", amount); //Fill in the token ID and receiver account
 
+    console.log("Signing transfer of coinst transaction");
     const signedTx = await transferTokenTx.freezeWithSigner(signer);
-    await signedTx.executeWithSigner(signer);
+    const transactionID = await signedTx.executeWithSigner(signer);
+    const response = await transactionID.getReceiptWithSigner(signer);
+    console.log("Transaction signed and sent", response);
   };
 
   // Modify your connection handling UI

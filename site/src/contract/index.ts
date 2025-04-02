@@ -6,7 +6,8 @@ import {
     Client,
     TokenCreateTransaction,
     TokenType, TransferTransaction, TokenInfoQuery,
-    TokenInfo
+    TokenInfo,
+    Hbar
 } from "@hashgraph/sdk";
 import "../../envConfig";
 
@@ -111,10 +112,10 @@ export class SmartContract {
             const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
             //Set the operator with the account ID and private key
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
-
+            console.log("Account ID =>", this.accountID);
             const txTransfer = new TransferTransaction()
-                .addHbarTransfer(args.userAddress, args.amount)
-                .addHbarTransfer(this.accountID, -args.amount)
+                .addHbarTransfer(args.userAddress, new Hbar(args.amount))
+                .addHbarTransfer(this.accountID, new Hbar(-1 * args.amount))
                 .freezeWith(client);
 
             //Sign with the sender account private key
