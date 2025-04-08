@@ -32,7 +32,12 @@ import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
 // import { useAppKitAccount } from "@reown/appkit/react";
-import { HederaSignerType, HWBridgeSigner, useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import {
+  HederaSignerType,
+  HWBridgeSigner,
+  useAccountId,
+  useWallet,
+} from "@buidlerlabs/hashgraph-react-wallets";
 import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
 import { getIfUserHasOwnedStock } from "@/server-actions/stocks/get_user_own_stock";
 import { TokenAssociateTransaction } from "@hashgraph/sdk";
@@ -47,7 +52,7 @@ function isHederaSigner(signer: HWBridgeSigner): signer is HederaSignerType {
 }
 
 export function ColumnActions({ entry }: { entry: StockData }) {
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // const { isConnected, address } = useAppKitAccount();
   const { isConnected } = useWallet();
@@ -101,7 +106,10 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         transaction_type: "buy",
       });
 
-      const userOwnStock = await getIfUserHasOwnedStock(accountId, entry.tokenID);
+      const userOwnStock = await getIfUserHasOwnedStock(
+        accountId,
+        entry.tokenID,
+      );
 
       // Associate token
       if (!userOwnStock) {
@@ -117,11 +125,11 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         console.log("Does not own token");
         const txTokenAssociate = new TokenAssociateTransaction()
           .setAccountId(accountId)
-          .setTokenIds([entry.tokenID]) //Fill in the token ID
-          
+          .setTokenIds([entry.tokenID]); //Fill in the token ID
 
-        //Sign with the private key of the account that is being associated to a token 
-        const signTxTokenAssociate = await txTokenAssociate.freezeWithSigner(signer);
+        //Sign with the private key of the account that is being associated to a token
+        const signTxTokenAssociate =
+          await txTokenAssociate.freezeWithSigner(signer);
         console.log("Signing");
         await signTxTokenAssociate.executeWithSigner(signer);
         console.log("Finished signing");
@@ -130,7 +138,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
       console.log("Starting to mark request as made");
       // Mark payment as paid
       await markRequestAsPaid(mpesa_request_id);
-      
+
       console.log("Mark as request made");
 
       // Show success message
@@ -191,11 +199,9 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               <Input
                 id="quantity"
                 type="number"
-                min="1"
                 value={quantity}
                 onChange={(e) => {
-                  const newValue = parseInt(e.target.value) || 1;
-                  setQuantity(newValue);
+                  setQuantity(parseInt(e.target.value));
                 }}
               />
             </div>
@@ -225,9 +231,11 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               <label className="text-sm font-medium">Total Amount</label>
               <div className="text-xl font-bold overflow-hidden">
                 KSH{" "}
-                {(entry.price * quantity).toLocaleString("en-KE", {
-                  minimumFractionDigits: 2,
-                })}
+                {quantity
+                  ? (entry.price * quantity).toLocaleString("en-KE", {
+                    minimumFractionDigits: 2,
+                  })
+                  : 0}
               </div>
             </div>
 
