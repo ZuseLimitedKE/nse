@@ -1,5 +1,3 @@
-// import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
-
 export async function POST(request: Request) {
   try {
     // Getting event

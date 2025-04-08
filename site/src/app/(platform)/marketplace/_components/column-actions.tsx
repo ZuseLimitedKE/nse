@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldErrors } from "react-hook-form";
-import z from "zod";
+import z, { object } from "zod";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -40,12 +40,13 @@ import {
 } from "@buidlerlabs/hashgraph-react-wallets";
 // import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
 import { getIfUserHasOwnedStock } from "@/server-actions/stocks/get_user_own_stock";
-import { TokenAssociateTransaction } from "@hashgraph/sdk";
+import { TokenAssociateTransaction, TransferTransaction } from "@hashgraph/sdk";
 // import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // paystack hook
 import { usePaystack } from "@/hooks/use-paystack";
 import { makePaymentRequest } from "@/server-actions/paystack/makePaymentRequest";
 import { Errors } from "@/constants/errors";
+import sendTokensToUser from "@/server-actions/contracts/send_token_user";
 // Defines the form value type from the schema
 const paymentSchema = z.object({
   email: z.string().email("enter a valid email address"),
@@ -146,16 +147,16 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               entry.tokenID,
             );
             //associate the token if needed
-            if (!userOwnStock) {
-              if (!signer) {
-                toast.error("Wallet not connected");
-                return;
-              }
-              if (!isHederaSigner(signer)) {
-                toast.error("Invalid signer");
-                return;
-              }
+            if (!signer) {
+              toast.error("Wallet not connected");
+              return;
+            }
+            if (!isHederaSigner(signer)) {
+              toast.error("Invalid signer");
+              return;
+            }
 
+            if (!userOwnStock) {
               console.log("Does not own token");
               const txTokenAssociate = new TokenAssociateTransaction()
                 .setAccountId(accountId)
@@ -168,6 +169,14 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               await signTxTokenAssociate.executeWithSigner(signer);
               console.log("Finished signing");
             }
+
+            // Send tokens to user
+            await sendTokensToUser({
+              tokenId: entry.tokenID,
+              amount: quantity,
+              userWalletAddress: accountId
+            });
+
             // Show success message
             toast.success(
               `Payment successful! You've purchased ${quantity} shares of ${entry.symbol}`,
@@ -185,7 +194,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
             setIsSubmitting(false);
           }
         },
-        onClose: function() {
+        onClose: function () {
           toast.info("Payment cancelled or window closed");
           setIsSubmitting(false);
         },
