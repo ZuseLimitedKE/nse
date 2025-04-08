@@ -291,6 +291,16 @@ export class MyDatabase {
       throw new MyError(Errors.NOT_GET_STOCK_DB);
     }
   }
+
+  async updateStockPurchaseStatus(paystack_id: string, status: PaymentStatus) {
+    try {
+      console.log(paystack_id, status);
+      await STOCK_PURCHASES_COLLECTION.updateOne({paystack_id: paystack_id}, {$set: {status}});
+    } catch(err) {
+      console.log("Could not update stock purchase status", err);
+      throw new MyError(Errors.NOT_UPDATE_PURCHASE_STATUS_DB);
+    }
+  }
 }
 
 const database = new MyDatabase();

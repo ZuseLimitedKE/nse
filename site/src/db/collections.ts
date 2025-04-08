@@ -33,7 +33,8 @@ export interface STOCKPURCHASES {
   buy_price: number,
   purchase_date: Date,
   status: string,
-  transaction_type: string
+  transaction_type: string,
+  paystack_id?: string
 }
 
 export interface userstock {
