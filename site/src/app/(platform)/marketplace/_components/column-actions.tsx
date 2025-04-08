@@ -24,7 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { stkPushSchema } from "@/constants/types";
+// import { stkPushSchema } from "@/constants/types";
 import { Spinner } from "@/components/ui/spinner";
 import { IconCash } from "@tabler/icons-react";
 import { IconShoppingCart } from "@tabler/icons-react";
@@ -45,14 +45,24 @@ import { TokenAssociateTransaction } from "@hashgraph/sdk";
 // paystack hook
 import { usePaystack } from "@/hooks/use-paystack";
 import { makePaymentRequest } from "@/server-actions/paystack/makePaymentRequest";
-
+import { Errors } from "@/constants/errors";
 // Defines the form value type from the schema
-type FormValues = z.infer<typeof stkPushSchema>;
+const paymentSchema = z.object({
+  email: z.string().email("enter a valid email address"),
+  amount: z
+    .number({ message: Errors.INVALID_AMOUNT })
+    .gt(0, { message: Errors.INVALID_AMOUNT })
+    .transform((val) => Math.ceil(val)), //round up to next shilling
+  stock_symbol: z
+    .string({ message: Errors.INVALID_SYMBOL })
+    .max(9, { message: Errors.INVALID_SYMBOL }),
+});
+
+type FormValues = z.infer<typeof paymentSchema>;
 function isHederaSigner(signer: HWBridgeSigner): signer is HederaSignerType {
   // Check based on properties that are unique to HederaSignerType
   return (signer as HederaSignerType).topic !== undefined;
 }
-
 export function ColumnActions({ entry }: { entry: StockData }) {
   const [quantity, setQuantity] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,10 +74,10 @@ export function ColumnActions({ entry }: { entry: StockData }) {
   const { isReady: paystackReady, initiatePayment } = usePaystack();
   // Initialize the form
   const form = useForm<FormValues>({
-    resolver: zodResolver(stkPushSchema),
+    resolver: zodResolver(paymentSchema),
     defaultValues: {
       amount: entry.price,
-      customer_phone_number: "",
+      email: "",
       stock_symbol: entry.symbol,
     },
     // mode: "onSubmit",
@@ -104,14 +114,15 @@ export function ColumnActions({ entry }: { entry: StockData }) {
       //   amount: finalAmount,
       // });
       const transaction = await makePaymentRequest(
-        "antonymbeka@gmail.com",
+        data.email,
         finalAmount * 100,
       );
-      setDialogOpen(false);
-
+      setTimeout(() => {
+        setDialogOpen(false);
+      }, 1000);
       initiatePayment({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
-        email: "antonymbeka@gmail.com",
+        email: data.email,
         amount: finalAmount * 100,
         ref: transaction.reference,
         access_code: transaction.access_code,
@@ -239,20 +250,20 @@ export function ColumnActions({ entry }: { entry: StockData }) {
 
             <FormField
               control={form.control}
-              name="customer_phone_number"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="254*********"
+                      placeholder="eg. johndoe@example.com"
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
                       }}
                     />
                   </FormControl>
-                  <FormDescription>Enter your phone number</FormDescription>
+                  <FormDescription>Enter your email address</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
