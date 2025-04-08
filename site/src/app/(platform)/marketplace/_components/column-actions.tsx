@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldErrors } from "react-hook-form";
-import z, { object } from "zod";
+import z from "zod";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -40,7 +40,7 @@ import {
 } from "@buidlerlabs/hashgraph-react-wallets";
 // import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
 import { getIfUserHasOwnedStock } from "@/server-actions/stocks/get_user_own_stock";
-import { TokenAssociateTransaction, TransferTransaction } from "@hashgraph/sdk";
+import { TokenAssociateTransaction } from "@hashgraph/sdk";
 // import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // paystack hook
 import { usePaystack } from "@/hooks/use-paystack";
