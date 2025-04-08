@@ -4,11 +4,9 @@ export async function POST(request: Request) {
   try {
     // Getting event
     const event = await request.json();
-
-    if (event?.event?.data?.) {
-    }
+    console.log(event);
   } catch(err) {
-
+    console.log(err);
   } finally {
     return Response.json({ message: "Okay" }, { status: 200 });
   }
