@@ -6,7 +6,7 @@ export async function makePaymentRequest(customer_email: string, amount: number)
     try {
         const response = await axios.post(process.env.PAYSTACK_URL, {
             email: customer_email,
-            amount: amount
+            amount: Math.ceil(amount * 100)
         }, {
             headers: {
                 Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
