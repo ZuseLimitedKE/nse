@@ -2,22 +2,27 @@ import { Errors, MyError } from "@/constants/errors";
 import "../../../envConfig";
 import axios from "axios";
 
-export async function makePaymentRequest(customer_email: string, amount: number): Promise<string> {
+export async function makePaymentRequest(customer_email: string, amount: number): Promise<{access_code: string, reference: string}> {
     try {
         const response = await axios.post(process.env.PAYSTACK_URL, {
             email: customer_email,
-            amount: Math.ceil(amount * 100)
+            amount: amount
         }, {
             headers: {
                 Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
             }
         });
 
-        if (!response.data.data.access_code) {
-            console.log("Did not get access code from paystack", response);
-            throw new MyError(Errors.NOT_MAKE_PAYMENT_REQUEST);
+        if (!response.data.data.reference) {
+            console.log("Did not get reference from paystack", response);
+            throw new MyError(Errors.NOT_GET_REFERENCE_CODE_PAYSTACK);
         } else {
-            return response.data.data.access_code;
+            if (!response.data.data.access_code) {
+                console.log("Did not get access code from paystack", response);
+                throw new MyError(Errors.NOT_MAKE_PAYMENT_REQUEST);
+            } else {
+                return {access_code: response.data.data.access_code as string, reference: response.data.data.reference as string};
+            }
         }
     } catch(err) {
         if (err instanceof MyError) {
