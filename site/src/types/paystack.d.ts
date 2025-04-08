@@ -6,7 +6,7 @@ declare namespace Paystack {
     currency?: string;
     ref?: string;
     access_code?: string;
-    metadata?: Record<string, any>;
+    // metadata?: Record<string, any>;
     callback?: (response: PaystackResponse) => void;
     onClose?: () => void;
     container?: string;
