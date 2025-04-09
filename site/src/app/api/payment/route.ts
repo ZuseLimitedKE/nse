@@ -18,10 +18,7 @@ export async function POST(request: Request) {
     if (hash === request.headers.get('x-paystack-signature')) {
       if (event?.event === "charge.success") {
         if (event?.data?.reference) {
-          console.log("Event", event);
           const reference: string = event?.data?.reference;
-          console.log("Reference", reference);
-
           // Mark payment request as paid
           await database.updateStockPurchaseStatus(reference, PaymentStatus.PAID);
         }
