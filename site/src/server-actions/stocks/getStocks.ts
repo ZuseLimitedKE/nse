@@ -103,7 +103,7 @@ export async function getStockPrices(): Promise<STOCKPRICES[]> {
 
     // Update database with stock prices
     console.log("...updating prices in db");
-    await database.updateStockPricesInDB(stockPrices);
+    await database.updateStockPricesInDB({time: new Date(), details: stockPrices});
 
     return stockPrices;
   } catch (err) {

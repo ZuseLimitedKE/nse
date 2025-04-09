@@ -47,6 +47,7 @@ import { usePaystack } from "@/hooks/use-paystack";
 import { makePaymentRequest } from "@/server-actions/paystack/makePaymentRequest";
 import { Errors } from "@/constants/errors";
 import sendTokensToUser from "@/server-actions/contracts/send_token_user";
+import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // Defines the form value type from the schema
 const paymentSchema = z.object({
   email: z.string().email("enter a valid email address"),
@@ -139,6 +140,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         callback: async (response) => {
           toast.success(`Payment complete! Reference:${response.reference}`);
           try {
+            console.log("Stock purchase")
             //store the stock purchase using the reference
             await store_stock_purchase({
               stock_symbol: data.stock_symbol,
@@ -150,10 +152,12 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               purchase_date: new Date(),
               transaction_type: "buy",
             });
+
             const userOwnStock = await getIfUserHasOwnedStock(
               accountId,
               entry.tokenID,
             );
+            console.log("user own stock", userOwnStock);
             //associate the token if needed
             if (!signer) {
               toast.error("Wallet not connected");
@@ -178,11 +182,22 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               console.log("Finished signing");
             }
 
+            console.log("Sending tokens to user");
             // Send tokens to user
             await sendTokensToUser({
               tokenId: entry.tokenID,
               amount: quantity,
               userWalletAddress: accountId
+            });
+
+            console.log("Updating user stock holdings");
+            await updateUserStockHoldings({
+              stock_symbol: data.stock_symbol,
+              user_address: accountId,
+              stock_name: entry.name,
+              number_stock: quantity,
+              tokenId: entry.tokenID,
+              operation: "buy"
             });
 
             // Show success message
