@@ -1,8 +1,10 @@
 import { Errors, MyError } from "@/constants/errors";
 import {
   STOCK_PRICES_COLLECTIONS,
+  STOCK_PRICES_V2_COLLECTION,
   STOCK_PURCHASES_COLLECTION,
   STOCKPRICES,
+  STOCKPRICESV2,
   STOCKPURCHASES,
   STOCKS,
   STOCKS_COLLECTION,
@@ -36,6 +38,12 @@ interface STOCKPURCHASESWITHID extends STOCKPURCHASES {
   _id: ObjectId
 }
 
+interface StockPrices {
+  symbol: string,
+  price: number,
+  change: number
+}
+
 export class MyDatabase {
   async createStockInDB(args: STOCKS) {
     try {
@@ -45,18 +53,18 @@ export class MyDatabase {
       throw new MyError(Errors.NOT_CREATE_STOCK_DB);
     }
   }
-  async checkIfStockExists(symbol: string): Promise<string | null>{
-    try{
-        const stock = await STOCKS_COLLECTION.findOne({ symbol });
-        if (stock) {
-          return stock.tokenID;
-        } else {
-          return null;
-        }
+  async checkIfStockExists(symbol: string): Promise<string | null> {
+    try {
+      const stock = await STOCKS_COLLECTION.findOne({ symbol });
+      if (stock) {
+        return stock.tokenID;
+      } else {
+        return null;
+      }
     }
-    catch(err){
-        console.log("Error checking if stock exists", err);
-        throw new MyError("Error checking if stock exists");
+    catch (err) {
+      console.log("Error checking if stock exists", err);
+      throw new MyError("Error checking if stock exists");
     }
   }
 
@@ -82,16 +90,14 @@ export class MyDatabase {
     }
   }
 
-  async getStockPricesFromDB(): Promise<STOCKPRICES[]> {
+  async getStockPricesFromDB(): Promise<StockPrices[]> {
     try {
-      const stocks: STOCKPRICES[] = [];
-      const cursor = STOCK_PRICES_COLLECTIONS.find();
+      const stocks: StockPrices[] = [];
+      const cursor = STOCK_PRICES_V2_COLLECTION.find().sort({"time": -1}).limit(1);
       for await (const doc of cursor) {
-        stocks.push({
-          symbol: doc.symbol,
-          change: doc.change,
-          price: doc.price,
-        });
+        for (let stock of doc.details) {
+          stocks.push(stock);
+        }
       }
 
       return stocks;
@@ -101,13 +107,10 @@ export class MyDatabase {
     }
   }
 
-  async updateStockPricesInDB(args: STOCKPRICES[]) {
+  async updateStockPricesInDB(args: STOCKPRICESV2) {
     try {
-      // Delete previous records
-      await STOCK_PRICES_COLLECTIONS.deleteMany({});
-
       // Insert new records
-      await STOCK_PRICES_COLLECTIONS.insertMany(args);
+      await STOCK_PRICES_V2_COLLECTION.insertOne(args);
     } catch (err) {
       console.log("Could not update stock prices in db", err);
       throw new MyError(Errors.NOT_UPDATE_STOCK_PRICES_DB);
@@ -158,8 +161,8 @@ export class MyDatabase {
 
   private async _replaceUserStocksRecord(args: USERSTOCKSWITHID) {
     try {
-      await USER_STOCKS_COLLECTION.replaceOne({_id: args._id}, args);
-    } catch(err) {
+      await USER_STOCKS_COLLECTION.replaceOne({ _id: args._id }, args);
+    } catch (err) {
       console.log("Could not replace document", err);
       throw new MyError(Errors.NOT_REPLACE_USER_STOCK);
     }
@@ -231,7 +234,7 @@ export class MyDatabase {
         } else {
           throw new MyError(Errors.UNKNOWN)
         }
-      } 
+      }
 
       throw new MyError(Errors.UNKNOWN);
     }
@@ -239,9 +242,9 @@ export class MyDatabase {
 
   async getStocksOwnedByUser(user_address: string): Promise<USERSTOCKS | null> {
     try {
-      const stocks = await USER_STOCKS_COLLECTION.findOne({user_address});
+      const stocks = await USER_STOCKS_COLLECTION.findOne({ user_address });
       return stocks
-    } catch(err) {
+    } catch (err) {
       console.log("Error getting stocks owned by user", err);
       throw new MyError(Errors.NOT_GET_USER_STOCKS);
     }
@@ -250,14 +253,14 @@ export class MyDatabase {
   async getStockPurchases(user_address: string, status: PaymentStatus): Promise<STOCKPURCHASES[]> {
     try {
       const stockPurchases: STOCKPURCHASES[] = [];
-      const cursor = STOCK_PURCHASES_COLLECTION.find({user_wallet: user_address, status}).sort({purchase_date: 1});
+      const cursor = STOCK_PURCHASES_COLLECTION.find({ user_wallet: user_address, status }).sort({ purchase_date: 1 });
 
       for await (const doc of cursor) {
         stockPurchases.push(doc);
       }
 
       return stockPurchases
-    } catch(err) {
+    } catch (err) {
       console.log("Error getting stock purchases", err);
       throw new MyError(Errors.NOT_GET_USER_TRANSACTIONS);
     }
@@ -265,8 +268,8 @@ export class MyDatabase {
 
   async updateSalePurchaseStatus(id: ObjectId, status: PaymentStatus) {
     try {
-      await STOCK_PURCHASES_COLLECTION.updateOne({_id: id}, {$set: {status}});
-    } catch(err) {
+      await STOCK_PURCHASES_COLLECTION.updateOne({ _id: id }, { $set: { status } });
+    } catch (err) {
       console.log("Error upeating stock purchase status", err);
       throw new MyError(Errors.NOT_UPDATE_PURCHASE_STATUS_DB);
     }
@@ -274,9 +277,9 @@ export class MyDatabase {
 
   async getRequestFromID(mpesa_id: string): Promise<STOCKPURCHASESWITHID | null> {
     try {
-      const doc = await STOCK_PURCHASES_COLLECTION.findOne({mpesa_request_id: mpesa_id});
+      const doc = await STOCK_PURCHASES_COLLECTION.findOne({ mpesa_request_id: mpesa_id });
       return doc ?? null;
-    } catch(err) {
+    } catch (err) {
       console.log("Could not get purchase from mpesa id", mpesa_id, err);
       throw new MyError(Errors.NOT_GET_MPESA_PAYMENT);
     }
@@ -284,9 +287,9 @@ export class MyDatabase {
 
   async getTokenDetails(symbol: string): Promise<STOCKS | null> {
     try {
-      const doc = await STOCKS_COLLECTION.findOne({symbol});
+      const doc = await STOCKS_COLLECTION.findOne({ symbol });
       return doc ?? null;
-    } catch(err) {
+    } catch (err) {
       console.log("Could not get token details of", symbol, err);
       throw new MyError(Errors.NOT_GET_STOCK_DB);
     }
@@ -295,8 +298,8 @@ export class MyDatabase {
   async updateStockPurchaseStatus(paystack_id: string, status: PaymentStatus) {
     try {
       console.log(paystack_id, status);
-      await STOCK_PURCHASES_COLLECTION.updateOne({paystack_id: paystack_id}, {$set: {status}});
-    } catch(err) {
+      await STOCK_PURCHASES_COLLECTION.updateOne({ paystack_id: paystack_id }, { $set: { status } });
+    } catch (err) {
       console.log("Could not update stock purchase status", err);
       throw new MyError(Errors.NOT_UPDATE_PURCHASE_STATUS_DB);
     }
