@@ -6,8 +6,15 @@ import { PaymentStatus } from "@/constants/status";
 export async function POST(request: Request) {
   try {
     // validate event
+    let paystack_secret_key: string = "";
+    if (process.env.NODE_ENV === "production") {
+      paystack_secret_key = process.env.LIVE_PAYSTACK_SECRET_KEY
+    } else {
+      paystack_secret_key = process.env.TEST_PAYSTACK_SECRET_KEY
+    }
+
     const event = await request.json();
-    const hash = createHmac('sha512', process.env.PAYSTACK_SECRET).update(JSON.stringify(event)).digest('hex');
+    const hash = createHmac('sha512', paystack_secret_key).update(JSON.stringify(event)).digest('hex');
     if (hash === request.headers.get('x-paystack-signature')) {
       if (event?.event === "charge.success") {
         if (event?.data?.reference) {

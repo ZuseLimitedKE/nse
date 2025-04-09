@@ -8,6 +8,14 @@ export async function makePaymentRequest(
   amount: number,
 ): Promise<{ access_code: string; reference: string }> {
   try {
+    let paystack_secret_key: string = "";
+    if (process.env.NODE_ENV === "production") {
+      paystack_secret_key = process.env.LIVE_PAYSTACK_SECRET_KEY
+    } else {
+      paystack_secret_key = process.env.TEST_PAYSTACK_SECRET_KEY
+    }
+
+
     const response = await axios.post(
       process.env.PAYSTACK_URL,
       {
@@ -16,7 +24,7 @@ export async function makePaymentRequest(
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`,
+          Authorization: `Bearer ${paystack_secret_key}`,
         },
       },
     );

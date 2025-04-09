@@ -118,11 +118,19 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         data.email,
         finalAmount * 100,
       );
+
+      let public_key: string = "";
+      if (process.env.NODE_ENV === "production") {
+        public_key = process.env.NEXT_PUBLIC_LIVE_PAYSTACK_PUBLIC_KEY!;
+      } else {
+        public_key = process.env.NEXT_PUBLIC_TEST_PAYSTACK_PUBLIC_KEY!;
+      }
+
       setTimeout(() => {
         setDialogOpen(false);
       }, 1000);
       initiatePayment({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+        key: public_key,
         email: data.email,
         amount: finalAmount * 100,
         ref: transaction.reference,
