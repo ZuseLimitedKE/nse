@@ -55,7 +55,7 @@ export async function getStocks(): Promise<StockData[]> {
     throw new MyError(Errors.NOT_GET_STOCKS);
   }
 }
-
+//Function to get stock by symbol. uses getstocks fun
 export async function getStockBySymbol(symbol: string): Promise<StockData | undefined> {
   const allStocks = await getStocks(); // Reuse existing logic
   return allStocks.find((s) => s.symbol.toLowerCase() === symbol.toLowerCase());
