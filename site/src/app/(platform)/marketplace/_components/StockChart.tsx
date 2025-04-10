@@ -39,56 +39,69 @@ export function StockChart({ timeframe, chartdata }: StockChartProps) {
     // Format data based on timeframe
     switch (timeframe) {
       case "1D": {
-        // Group by hour
-        const hourlyData = [];
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Create a timestamp for 24 hours ago
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
-        const filteredData = formattedData.filter((item) => {
-          const itemDate = new Date(item.time);
-          itemDate.setHours(0, 0, 0, 0);
-          return itemDate.getTime() === today.getTime();
-        });
+        // Filter data to only include the last 24 hours
+        const last24HoursData = formattedData.filter(
+          (item) => item.time.getTime() >= twentyFourHoursAgo.getTime(),
+        );
 
-        if (filteredData.length === 0) {
-          // If no data for today, use all data and group by hour
-          for (let i = 0; i < 24; i++) {
-            const hourData = formattedData.filter(
-              (item) => item.time.getHours() === i,
-            );
+        last24HoursData.sort((a, b) => a.time.getTime() - b.time.getTime());
 
-            if (hourData.length > 0) {
-              const avgPrice =
-                hourData.reduce((sum, item) => sum + item.price, 0) /
-                hourData.length;
-              hourlyData.push({
-                time: `${i}:00`,
-                price: parseFloat(avgPrice.toFixed(2)),
-              });
+        let displayData = last24HoursData;
+
+        // If more than 24 data points, sample strategically to preserve volatility
+        if (last24HoursData.length > 24) {
+          const sampled = [];
+
+          // Always include first and last point
+          if (last24HoursData.length > 0) sampled.push(last24HoursData[0]);
+
+          // Find local minimums and maximums to preserve volatility
+          for (let i = 1; i < last24HoursData.length - 1; i++) {
+            const prev = last24HoursData[i - 1].price;
+            const current = last24HoursData[i].price;
+            const next = last24HoursData[i + 1].price;
+
+            // If current point is a local min/max, include it
+            if (
+              (current > prev && current > next) ||
+              (current < prev && current < next)
+            ) {
+              sampled.push(last24HoursData[i]);
+            }
+            // If this isn't a min/max but we haven't added a point in a while, include it
+            else if (
+              sampled.length > 0 &&
+              last24HoursData[i].time.getTime() -
+              sampled[sampled.length - 1].time.getTime() >
+              3600000
+            ) {
+              sampled.push(last24HoursData[i]);
             }
           }
-        } else {
-          // Use today's data
-          for (let i = 0; i < 24; i++) {
-            const hourData = filteredData.filter(
-              (item) => item.time.getHours() === i,
-            );
 
-            if (hourData.length > 0) {
-              const avgPrice =
-                hourData.reduce((sum, item) => sum + item.price, 0) /
-                hourData.length;
-              hourlyData.push({
-                time: `${i}:00`,
-                price: parseFloat(avgPrice.toFixed(2)),
-              });
-            }
-          }
+          // Add the last point
+          if (last24HoursData.length > 1)
+            sampled.push(last24HoursData[last24HoursData.length - 1]);
+
+          // Use the sampled data
+          displayData = sampled;
         }
 
-        return hourlyData;
-      }
+        // Format each data point for display
+        return displayData.map((item) => {
+          const hours = item.time.getHours().toString().padStart(2, "0");
+          const minutes = item.time.getMinutes().toString().padStart(2, "0");
 
+          return {
+            time: `${hours}:${minutes}`,
+            price: parseFloat(item.price.toFixed(2)),
+          };
+        });
+      }
       case "1W": {
         // Calculate the date 7 days ago
         const oneWeekAgo = new Date();
@@ -361,7 +374,7 @@ export function StockChart({ timeframe, chartdata }: StockChartProps) {
               domain={[minPrice, maxPrice]}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(value) => `${value.toFixed(2)}`}
+              tickFormatter={(value) => `${value.toFixed(1)}`}
             />
             <Tooltip
               formatter={(value: number) => [`KES ${value}`, "Price"]}
