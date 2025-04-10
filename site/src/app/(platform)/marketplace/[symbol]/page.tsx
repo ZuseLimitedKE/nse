@@ -29,16 +29,31 @@ export default async function StockDetail({
   const { symbol } = await params;
 
   if (!symbol) {
-    return <div className="h-screen flex justify-center items-center">Stock not found</div>;
-  }// In a real app, you would fetch this based on symbol
-  
+    return (
+      <div className="h-screen flex justify-center items-center">
+        Stock not found
+      </div>
+    );
+  } // In a real app, you would fetch this based on symbol
+
   const data = await getPriceChartData(symbol); //Fetching the price chart data
-  
-  const stockSymbol = await getStockBySymbol(symbol)
-  const stock = {...stockSymbol, description: `${stockSymbol?.name} is a revolutionary company`, exchange: `${stockSymbol?.symbol}-NSE`, supply: 100000, borrow: 50000, utilizationRate: 10}
+
+  const stockSymbol = await getStockBySymbol(symbol);
+  const stock = {
+    ...stockSymbol,
+    description: `${stockSymbol?.name} is a revolutionary company`,
+    exchange: `${stockSymbol?.symbol}-NSE`,
+    supply: 100000,
+    borrow: 50000,
+    utilizationRate: 10,
+  };
 
   if (!stockSymbol) {
-    return <div className="h-screen flex justify-center items-center">Stock not found</div>;
+    return (
+      <div className="h-screen flex justify-center items-center">
+        Stock not found
+      </div>
+    );
   }
   return (
     <div className="container px-4 md:px-8 lg:px-16 mx-auto py-6">
@@ -64,7 +79,8 @@ export default async function StockDetail({
                 )}
                 <span>
                   {stockSymbol.change >= 0 ? "+" : ""}
-                  {stockSymbol.change.toFixed(2)} ({stockSymbol.change.toFixed(2)}%)
+                  {stockSymbol.change.toFixed(2)} (
+                  {stockSymbol.change.toFixed(2)}%)
                 </span>
               </div>
             </div>
@@ -154,7 +170,7 @@ export default async function StockDetail({
               </CardContent>
             </Card>
 
-            <Card className="mt-6">
+            <Card className="mt-6 hidden">
               <CardHeader>
                 <CardTitle>Recent Trades</CardTitle>
               </CardHeader>
