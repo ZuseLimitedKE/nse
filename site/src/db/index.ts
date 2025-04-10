@@ -96,7 +96,7 @@ export class MyDatabase {
         .sort({ time: -1 })
         .limit(1);
       for await (const doc of cursor) {
-        for (let stock of doc.details) {
+        for (const stock of doc.details) {
           stocks.push(stock);
         }
       }
