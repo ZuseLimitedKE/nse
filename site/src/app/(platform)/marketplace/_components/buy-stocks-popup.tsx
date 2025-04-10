@@ -65,7 +65,7 @@ function isHederaSigner(signer: HWBridgeSigner): signer is HederaSignerType {
   // Check based on properties that are unique to HederaSignerType
   return (signer as HederaSignerType).topic !== undefined;
 }
-export function ColumnActions({ entry }: { entry: StockData }) {
+export function BuyStocksPopup({ entry }: { entry: StockData }) {
   const [quantity, setQuantity] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -140,7 +140,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
         callback: async (response) => {
           toast.success(`Payment complete! Reference:${response.reference}`);
           try {
-            console.log("Stock purchase")
+            console.log("Stock purchase");
             //store the stock purchase using the reference
             await store_stock_purchase({
               stock_symbol: data.stock_symbol,
@@ -187,7 +187,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
             await sendTokensToUser({
               tokenId: entry.tokenID,
               amount: quantity,
-              userWalletAddress: accountId
+              userWalletAddress: accountId,
             });
 
             console.log("Updating user stock holdings");
@@ -197,7 +197,7 @@ export function ColumnActions({ entry }: { entry: StockData }) {
               stock_name: entry.name,
               number_stock: quantity,
               tokenId: entry.tokenID,
-              operation: "buy"
+              operation: "buy",
             });
 
             // Show success message
@@ -307,8 +307,8 @@ export function ColumnActions({ entry }: { entry: StockData }) {
                 KSH{" "}
                 {quantity
                   ? (entry.price * quantity).toLocaleString("en-KE", {
-                    minimumFractionDigits: 2,
-                  })
+                      minimumFractionDigits: 2,
+                    })
                   : 0}
               </div>
             </div>
