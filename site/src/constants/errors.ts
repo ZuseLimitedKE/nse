@@ -52,5 +52,6 @@ export enum Errors {
     NOT_GET_USER_OWN_STOCK = "Could not get if user owns stock",
     NOT_GET_REFERENCE_CODE_PAYSTACK = "Could not reference code from paystack",
     NOT_SEND_TOKENS_USER = "Could not send tokens to user",
+    NOT_GET_PRICES = "Could not get prices of stocks over time",
     UNKNOWN = "Unkown error",
 }
