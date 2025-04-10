@@ -56,6 +56,12 @@ export async function getStocks(): Promise<StockData[]> {
   }
 }
 
+export async function getStockBySymbol(symbol: string): Promise<StockData | undefined> {
+  const allStocks = await getStocks(); // Reuse existing logic
+  return allStocks.find((s) => s.symbol.toLowerCase() === symbol.toLowerCase());
+}
+
+
 const getStockPricesWithCache = unstable_cache(
   async () => {
     console.log("...using cache");
