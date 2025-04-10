@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { IconBinoculars } from "@tabler/icons-react";
+import { IconEye } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
 export function ViewButton({ symbol }: { symbol: string }) {
@@ -12,7 +12,7 @@ export function ViewButton({ symbol }: { symbol: string }) {
       size="sm"
       onClick={() => router.push(`/marketplace/${symbol}`)}
     >
-      <IconBinoculars className="h-4 w-4 mr-1" />
+      <IconEye className="h-4 w-4 mr-1" />
       View
     </Button>
   );
