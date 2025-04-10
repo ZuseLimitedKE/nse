@@ -1,6 +1,6 @@
 import { StockData } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, TrendingDown, TrendingUp, Minus } from "lucide-react";
 import { BuyStocksPopup } from "./buy-stocks-popup";
 import { ViewButton } from "./view-button";
 export const columns: ColumnDef<StockData>[] = [
@@ -43,6 +43,31 @@ export const columns: ColumnDef<StockData>[] = [
   {
     accessorKey: "change",
     header: "Change",
+    cell: ({ row }) => {
+      const change = row.original.change;
+      const isPositive = change > 0;
+      const isZero = change === 0;
+
+      return (
+        <div
+          className={`flex items-center gap-1 ${isZero
+              ? "text-gray-500"
+              : isPositive
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+        >
+          {isZero ? (
+            <Minus className="w-4 h-4 text-inherit" strokeWidth={1.25} />
+          ) : isPositive ? (
+            <TrendingUp className="w-4 h-4 text-inherit" strokeWidth={1.25} />
+          ) : (
+            <TrendingDown className="w-4 h-4 text-inherit" strokeWidth={1.25} />
+          )}
+          {Math.abs(change).toFixed(1)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "tokenID",
