@@ -34,7 +34,7 @@ const StockDetail = ({ params }: { params: { symbol: string } }) => {
   const [amount, setAmount] = useState("");
   const [action, setAction] = useState("buy"); // "buy" or "sell"
   const [tokenAmount, setTokenAmount] = useState("0");
-
+  console.log(symbol);
   const stock = stockData.safaricom; // In a real app, you would fetch this based on symbol
 
   const handlePercentageClick = (percentage: number) => {
