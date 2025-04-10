@@ -56,7 +56,7 @@ export default function LandingPage() {
   ];
   return (
     <div className="relative  grid justify-items-center ">
-      {/* Hero Section */}{" "}
+      {/* Hero Section */} <BackgroundBeams />
       <section className="pt-32 px-8  w-full relative pb-12 md:pt-56 lg:min-h-screen md:pb-20">
         <div className="grid gap-8   items-center">
           <div className="space-y-6 w-full ">

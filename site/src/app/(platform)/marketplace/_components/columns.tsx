@@ -48,8 +48,8 @@ export const columns: ColumnDef<StockData>[] = [
     header: "Token ID",
   },
   {
-    id: "actions",
-    header: "Actions",
+    id: "buy",
+    header: "Buy",
 
     cell: ({ row }) => <BuyStocksPopup entry={row.original} />,
   },
