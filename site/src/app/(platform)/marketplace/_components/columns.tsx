@@ -1,7 +1,8 @@
 import { StockData } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-import { ColumnActions } from "./column-actions";
+import { BuyStocksPopup } from "./buy-stocks-popup";
+import { ViewButton } from "./view-button";
 export const columns: ColumnDef<StockData>[] = [
   {
     accessorKey: "symbol",
@@ -45,12 +46,17 @@ export const columns: ColumnDef<StockData>[] = [
   },
   {
     accessorKey: "tokenID",
-    header: "Token ID"
+    header: "Token ID",
   },
   {
-    id: "actions",
-    header: "Actions",
+    id: "view",
+    header: "View",
+    cell: ({ row }) => <ViewButton symbol={row.original.symbol} />,
+  },
+  {
+    id: "buy",
+    header: "Buy",
 
-    cell: ({ row }) => <ColumnActions entry={row.original} />,
+    cell: ({ row }) => <BuyStocksPopup entry={row.original} />,
   },
 ];
