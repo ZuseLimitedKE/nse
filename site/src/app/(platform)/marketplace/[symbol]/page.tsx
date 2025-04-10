@@ -8,6 +8,7 @@ import { StockChart } from "../_components/StockChart";
 import { StockTrades } from "../_components/StockTrades";
 import StockTradingForm from "../_components/StockTradingForm";
 import StockChartControls from "../_components/StockChartControls";
+import getPriceChartData from "@/server-actions/stocks/get_price_chart_data";
 
 // Mock stock data
 const stockData = {
@@ -34,8 +35,8 @@ export default async function StockDetail({
 }) {
   const { symbol } = await params;
   console.log(symbol);
-  const stock = stockData.safaricom; // In a real app, you would fetch this based on symbol
-
+  const stock = stockData.safaricom;
+  const data = await getPriceChartData(symbol); //Fetching the stock data
   return (
     <div className="container px-4 md:px-8 lg:px-16 mx-auto py-6">
       <div className="flex flex-col gap-6">
@@ -146,7 +147,7 @@ export default async function StockDetail({
                 <StockChartControls />
               </CardHeader>
               <CardContent>
-                <StockChart timeframe="1D" symbol={stock.symbol} />
+                <StockChart timeframe="1D" chartdata={data} />
               </CardContent>
             </Card>
 
