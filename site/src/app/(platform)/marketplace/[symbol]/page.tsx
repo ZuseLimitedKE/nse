@@ -35,7 +35,7 @@ export default async function StockDetail({
 }) {
   const { symbol } = await params;
   console.log(symbol);
-  const stock = stockData.safaricom; // In a real app, you would fetch this based on symbol
+  const stock = stockData.safaricom;
   const data = await getPriceChartData(symbol); //Fetching the stock data
   return (
     <div className="container px-4 md:px-8 lg:px-16 mx-auto py-6">
