@@ -34,13 +34,13 @@ export async function getTotalPortfolioValue(user_address: string): Promise<numb
     }
 }
 
-interface StocksList {
+export interface StocksList {
     num: number,
     price: number,
     symbol: string
 }
 
-interface InitialInvestmentArgs {
+export interface InitialInvestmentArgs {
     user_address: string,
     symbol?: string,
     date?: Date
@@ -127,7 +127,7 @@ function removeStock(args: { num: number, symbol: string }, stocks: StocksList[]
     }
 }
 
-interface StockHoldings {
+export interface StockHoldings {
     symbol: string,
     name: string,
     shares: number,
