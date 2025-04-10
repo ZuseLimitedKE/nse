@@ -10,9 +10,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+//ADD CHART DATA 
 type StockChartProps = {
   timeframe: string;
   symbol: string;
+  chartdata: {
+    time: Date;
+    price: number;
+  }[];
 };
 interface TimeFrame {
   time: string;
@@ -101,11 +106,21 @@ const generateMockData = (timeframe: string) => {
   return data;
 };
 
-export function StockChart({ timeframe, symbol }: StockChartProps) {
+export function StockChart({ timeframe, symbol, chartdata }: StockChartProps) {
   const data = generateMockData(timeframe);
-  console.log(symbol);
-  // Find min and max for proper chart display
-  const prices = data.map((item) => item.price);
+  console.log(symbol);console.log(symbol);
+  // // Find min and max for proper chart display
+  // const prices = data.map((item) => item.price);
+  // const minPrice = Math.min(...prices) - 0.5;
+  // const maxPrice = Math.max(...prices) + 0.5;
+
+  //FORMATTING THE DATA HERE
+  const formattedData = chartdata.map((point) => ({
+    time: new Date(point.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), // customize based on timeframe
+    price: point.price,
+  }));
+
+  const prices = formattedData.map((item) => item.price);
   const minPrice = Math.min(...prices) - 0.5;
   const maxPrice = Math.max(...prices) + 0.5;
 
