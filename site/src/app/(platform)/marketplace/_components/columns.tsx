@@ -1,6 +1,11 @@
 import { StockData } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import {
+  ArrowUpDown,
+  TrendingDown,
+  TrendingUp,
+  CircleMinus,
+} from "lucide-react";
 import { BuyStocksPopup } from "./buy-stocks-popup";
 import { ViewButton } from "./view-button";
 export const columns: ColumnDef<StockData>[] = [
@@ -58,7 +63,7 @@ export const columns: ColumnDef<StockData>[] = [
             }`}
         >
           {isZero ? (
-            <Minus className="w-4 h-4 text-inherit" strokeWidth={1.25} />
+            <CircleMinus className="w-4 h-4 text-inherit" strokeWidth={1.25} />
           ) : isPositive ? (
             <TrendingUp className="w-4 h-4 text-inherit" strokeWidth={1.25} />
           ) : (
