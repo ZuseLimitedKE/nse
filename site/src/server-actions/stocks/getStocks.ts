@@ -46,7 +46,7 @@ export async function getStocks(): Promise<StockData[]> {
         name: s.name,
         price: entry?.price ?? 0.0,
         change: entry?.change ?? 0.0,
-        tokenID: s.tokenID
+        tokenID: s.tokenID,
       };
     });
     // return stocks;
@@ -62,7 +62,7 @@ const getStockPricesWithCache = unstable_cache(
     return await getStockPrices();
   },
   ["stock-prices"],
-  { revalidate: 300 }, // 300 seconds = 5 minutes
+  { revalidate: 30 }, // 30 seconds
 );
 
 export async function getStockPrices(): Promise<STOCKPRICES[]> {
@@ -103,7 +103,10 @@ export async function getStockPrices(): Promise<STOCKPRICES[]> {
 
     // Update database with stock prices
     console.log("...updating prices in db");
-    await database.updateStockPricesInDB({time: new Date(), details: stockPrices});
+    await database.updateStockPricesInDB({
+      time: new Date(),
+      details: stockPrices,
+    });
 
     return stockPrices;
   } catch (err) {
