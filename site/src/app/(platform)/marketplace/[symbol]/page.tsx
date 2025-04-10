@@ -37,7 +37,6 @@ export default async function StockDetail({
   console.log(symbol);
   const stock = stockData.safaricom; // In a real app, you would fetch this based on symbol
   const data = await getPriceChartData(symbol); //Fetching the stock data
-
   return (
     <div className="container px-4 md:px-8 lg:px-16 mx-auto py-6">
       <div className="flex flex-col gap-6">
@@ -148,7 +147,7 @@ export default async function StockDetail({
                 <StockChartControls />
               </CardHeader>
               <CardContent>
-                <StockChart timeframe="1D" symbol={stock.symbol} chartdata={data}/>
+                <StockChart timeframe="1D" chartdata={data} />
               </CardContent>
             </Card>
 
