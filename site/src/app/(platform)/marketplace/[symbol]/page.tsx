@@ -9,6 +9,17 @@ import { StockTrades } from "../_components/StockTrades";
 import StockTradingForm from "../_components/StockTradingForm";
 import StockChartControls from "../_components/StockChartControls";
 import getPriceChartData from "@/server-actions/stocks/get_price_chart_data";
+import { getStockBySymbol } from "@/server-actions/stocks/getStocks";
+
+//interface for data returned by getStockBySymbol
+// interface stockSymbolData {
+//   id: number,
+//   symbol: string,
+//   name: string,
+//   price: number,
+//   change: number,
+//   tokenID: number,
+// };
 
 // Mock stock data
 const stockData = {
@@ -34,9 +45,20 @@ export default async function StockDetail({
   params: Promise<{ symbol: string }>;
 }) {
   const { symbol } = await params;
-  console.log(symbol);
+
+  if (!symbol) {
+    return <div className="h-screen flex justify-center items-center">Stock not found</div>;
+  }
+
   const stock = stockData.safaricom; // In a real app, you would fetch this based on symbol
-  const data = await getPriceChartData(symbol); //Fetching the stock data
+  
+  const data = await getPriceChartData(symbol); //Fetching the price chart data
+  
+  const stockSymbol = await getStockBySymbol(symbol)
+
+  if (!stockSymbol) {
+    return <div className="h-screen flex justify-center items-center">Stock not found</div>;
+  }
 
   return (
     <div className="container px-4 md:px-8 lg:px-16 mx-auto py-6">
@@ -44,16 +66,16 @@ export default async function StockDetail({
         <div>
           <div className="flex flex-col mb-2">
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold">{stock.name}</h1>
-              <span className="text-gray-500">({stock.symbol})</span>
+              <h1 className="text-3xl font-bold">{stockSymbol.name}</h1>
+              <span className="text-gray-500">({stockSymbol.symbol})</span>
               <span className="text-xs text-gray-400">{stock.exchange}</span>
             </div>
             <div className="flex items-center mt-1">
               <span className="text-2xl font-semibold mr-2">
-                KES {stock.price.toFixed(2)}
+                KES {stockSymbol.price.toFixed(2)}
               </span>
               <div
-                className={`flex items-center ${stock.change >= 0 ? "text-green-600" : "text-red-600"}`}
+                className={`flex items-center ${stockSymbol.change >= 0 ? "text-green-600" : "text-red-600"}`}
               >
                 {stock.change >= 0 ? (
                   <ArrowUp className="h-4 w-4 mr-1" />
@@ -61,8 +83,8 @@ export default async function StockDetail({
                   <ArrowDown className="h-4 w-4 mr-1" />
                 )}
                 <span>
-                  {stock.change >= 0 ? "+" : ""}
-                  {stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
+                  {stockSymbol.change >= 0 ? "+" : ""}
+                  {stockSymbol.change.toFixed(2)} ({stockSymbol.change.toFixed(2)}%)
                 </span>
               </div>
             </div>
@@ -71,7 +93,7 @@ export default async function StockDetail({
 
         <Card>
           <CardHeader>
-            <CardTitle>About {stock.name}</CardTitle>
+            <CardTitle>About {stockSymbol.name}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600">{stock.description}</p>
@@ -122,7 +144,7 @@ export default async function StockDetail({
             </CardHeader>
             <CardContent className="py-0">
               <div className="text-2xl font-bold text-primary">
-                {stock.apy}%
+                {stockSymbol.change}%
               </div>
             </CardContent>
           </Card>
@@ -157,7 +179,7 @@ export default async function StockDetail({
                 <CardTitle>Recent Trades</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <StockTrades symbol={stock.symbol} />
+                <StockTrades symbol={stockSymbol.symbol} />
               </CardContent>
             </Card>
           </div>
@@ -165,10 +187,10 @@ export default async function StockDetail({
           <div>
             <StockTradingForm
               stock={{
-                name: stock.name,
-                symbol: stock.symbol,
+                name: stockSymbol.name,
+                symbol: stockSymbol.symbol,
                 exchange: stock.exchange,
-                price: stock.price,
+                price: stockSymbol.price,
               }}
             />
           </div>
