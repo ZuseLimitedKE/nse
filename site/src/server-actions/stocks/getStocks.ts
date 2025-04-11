@@ -46,6 +46,7 @@ export async function getStocks(): Promise<StockData[]> {
         name: s.name,
         price: entry?.price ?? 0.0,
         change: entry?.change ?? 0.0,
+        tokenID: s.tokenID,
       };
     });
     // return stocks;
@@ -54,6 +55,12 @@ export async function getStocks(): Promise<StockData[]> {
     throw new MyError(Errors.NOT_GET_STOCKS);
   }
 }
+//Function to get stock by symbol. uses getstocks fun
+export async function getStockBySymbol(symbol: string): Promise<StockData | undefined> {
+  const allStocks = await getStocks(); // Reuse existing logic
+  return allStocks.find((s) => s.symbol.toLowerCase() === symbol.toLowerCase());
+}
+
 
 const getStockPricesWithCache = unstable_cache(
   async () => {
@@ -61,7 +68,7 @@ const getStockPricesWithCache = unstable_cache(
     return await getStockPrices();
   },
   ["stock-prices"],
-  { revalidate: 300 }, // 300 seconds = 5 minutes
+  { revalidate: 50 }, // 50 seconds
 );
 
 export async function getStockPrices(): Promise<STOCKPRICES[]> {
@@ -102,7 +109,10 @@ export async function getStockPrices(): Promise<STOCKPRICES[]> {
 
     // Update database with stock prices
     console.log("...updating prices in db");
-    await database.updateStockPricesInDB(stockPrices);
+    await database.updateStockPricesInDB({
+      time: new Date(),
+      details: stockPrices,
+    });
 
     return stockPrices;
   } catch (err) {

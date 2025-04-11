@@ -9,6 +9,9 @@ import { siteConfig } from "@/config/site";
 import TanstackProvider from "@/context/tanstack";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AdminKeyBoardShortcut } from "@/components/admin-shortcut";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ReactWalletsProvider } from "@/context/hashgraph";
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
   subsets: ["vietnamese"],
@@ -34,9 +37,13 @@ export default async function RootLayout({
         <body className={`${plusJakartaSans.className} antialiased`}>
           <TanstackProvider>
             <AppKitProvider cookies={cookies}>
-              <Navbar />
-              {children}
-              <AdminKeyBoardShortcut />
+              <ReactWalletsProvider>
+                <Navbar />
+                {children}
+                <AdminKeyBoardShortcut />
+                <Analytics />
+                <SpeedInsights />
+              </ReactWalletsProvider>
             </AppKitProvider>
           </TanstackProvider>
           <Toaster richColors />

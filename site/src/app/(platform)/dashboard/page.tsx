@@ -1,11 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useAppKitAccount } from "@reown/appkit/react";
+// import { useAppKitAccount } from "@reown/appkit/react";
 import getGraphData from "@/server-actions/dashboard/graph";
 import { sendNotification } from "@/server-actions/sell/notify";
 import { Loader2 } from "lucide-react";
 import { GraphDataMode } from "@/constants/types";
 import { Button } from "@/components/ui/button";
+import {
+  HWBridgeSigner,
+  HederaSignerType,
+} from "@buidlerlabs/hashgraph-react-wallets";
 import {
   Card,
   CardContent,
@@ -48,13 +52,17 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { toast } from "sonner";
-import { 
-  getStockHoldings, 
-  getTotalPortfolioValue, 
-  getInitialInvestment 
+import {
+  getStockHoldings,
+  getTotalPortfolioValue,
+  getInitialInvestment,
 } from "@/server-actions/stocks/dashboard";
-
+import { useAccountId, useWallet } from "@buidlerlabs/hashgraph-react-wallets";
+import { TransferTransaction } from "@hashgraph/sdk";
+import { transferHbar } from "@/server-actions/contracts/transfer_hbar";
+import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 interface StockHoldings {
+  tokenId: string;
   symbol: string;
   name: string;
   shares: number;
@@ -69,10 +77,15 @@ interface PerformanceData {
   name?: string;
 }
 
-type DateRange = '1w' | '1m'
-
+type DateRange = "1w" | "1m";
+function isHederaSigner(signer: HWBridgeSigner): signer is HederaSignerType {
+  // Check based on properties that are unique to HederaSignerType
+  return (signer as HederaSignerType).topic !== undefined;
+}
 const DashBoardPage = () => {
-  const { isConnected, address, status } = useAppKitAccount();
+  // const { isConnected, address, status } = useAppKitAccount();
+  const { isConnected } = useWallet();
+  const { data: address } = useAccountId();
   const [isSelling, setIsSelling] = useState(false);
   const [portfolio, setPortfolio] = useState<StockHoldings[]>([]);
   const [performanceData, setPerformanceData] = useState<PerformanceData[]>([]);
@@ -80,81 +93,85 @@ const DashBoardPage = () => {
   const [currentValue, setCurrentValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedStock, setSelectedStock] = useState<StockHoldings | null>(null);
+  const [selectedStock, setSelectedStock] = useState<StockHoldings | null>(
+    null,
+  );
   const [sellQuantity, setSellQuantity] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("mobile");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [dateRange, setDateRange] = useState<DateRange>('1w');
-  const [isInitialConnectionCheck, setIsInitialConnectionCheck] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRange>("1w");
+  // const [isInitialConnectionCheck, setIsInitialConnectionCheck] =useState(true);
+  const { signer } = useWallet();
+  const { data: accountId } = useAccountId();
 
   useEffect(() => {
     // Skip if we're still checking initial connection
-    if (isInitialConnectionCheck) {
-      if (status !== 'connecting') {
-        setIsInitialConnectionCheck(false);
-      }
-      return;
-    }
-
+    // if (isInitialConnectionCheck) {
+    //   if (status !== "connecting") {
+    //     setIsInitialConnectionCheck(false);
+    //   }
+    //   return;
+    // }
     // Only proceed if wallet is connected and we have an address
-    if (isConnected && address && status === 'connected') {
+    if (isConnected && address /*&& status === "connected"*/) {
       const fetchData = async () => {
         try {
           setLoading(true);
           setError(null);
 
-        const fromDate = getDateFromRange(dateRange);
-        let mode: GraphDataMode = GraphDataMode.WEEKLY;
-        
-        // Adjust mode based on date range
-        if (dateRange === '1w' || dateRange === '1m') {
-          mode = GraphDataMode.WEEKLY;
-        } else {
-          mode = GraphDataMode.MONTHLY;
+          const fromDate = getDateFromRange(dateRange);
+          let mode: GraphDataMode = GraphDataMode.WEEKLY;
+
+          // Adjust mode based on date range
+          if (dateRange === "1w" || dateRange === "1m") {
+            mode = GraphDataMode.WEEKLY;
+          } else {
+            mode = GraphDataMode.MONTHLY;
+          }
+
+          console.log("user address", address);
+          const [holdings, invested, portfolioValue, performance] =
+            await Promise.all([
+              getStockHoldings(address),
+              getInitialInvestment({ user_address: address }),
+              getTotalPortfolioValue(address),
+              getGraphData({
+                user_address: address,
+                from: fromDate,
+                to: new Date(),
+                mode: mode,
+              }),
+            ]);
+
+          setPortfolio(holdings);
+          setTotalInvested(invested);
+          setCurrentValue(portfolioValue);
+
+          setPerformanceData(
+            performance.map((item) => ({
+              ...item,
+              name: formatDateForDisplay(item.date, dateRange),
+            })),
+          );
+        } catch (err) {
+          console.error("Fetch error:", err);
+          setError("Failed to load portfolio data");
+        } finally {
+          setLoading(false);
         }
+      };
 
-        console.log("user address", address);
-        const [holdings, invested, portfolioValue, performance] = await Promise.all([
-          getStockHoldings(address),
-          getInitialInvestment({user_address: address}),
-          getTotalPortfolioValue(address),
-          getGraphData({
-            user_address: address,
-            from: fromDate,
-            to: new Date(),
-            mode: mode
-          })
-        ]);
-
-        setPortfolio(holdings);
-        setTotalInvested(invested);
-        setCurrentValue(portfolioValue);
-
-        
-        
-        setPerformanceData(performance.map(item => ({
-          ...item,
-          name: formatDateForDisplay(item.date, dateRange)
-        })));
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Failed to load portfolio data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }
-  }, [isConnected, address, dateRange, status, isInitialConnectionCheck]);
+      fetchData();
+    }
+  }, [isConnected, address, dateRange /*status, isInitialConnectionCheck*/]);
 
   const getDateFromRange = (range: DateRange): Date => {
     const date = new Date();
-    switch(range) {
-      case '1w':
+    switch (range) {
+      case "1w":
         date.setDate(date.getDate() - 7);
         break;
-      case '1m':
+      case "1m":
         date.setMonth(date.getMonth() - 1);
         break;
     }
@@ -162,62 +179,108 @@ const DashBoardPage = () => {
   };
 
   const formatDateForDisplay = (date: Date, range: DateRange) => {
-    if (range === '1w' || range === '1m') {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    } 
+    if (range === "1w" || range === "1m") {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    }
   };
 
   const totalProfit = currentValue - totalInvested;
-  const profitPercentage = totalInvested !== 0 
-    ? (totalProfit / totalInvested) * 100 
-    : 0;
+  const profitPercentage =
+    totalInvested !== 0 ? (totalProfit / totalInvested) * 100 : 0;
 
   const handleSell = async () => {
     if (!selectedStock || !address) {
       toast.warning("No stock selected or wallet disconnected");
       return;
     }
+    setIsSelling(true);
 
     try {
-      setIsSelling(true);
       // Implement sell logic here
       // await sellStock(address, selectedStock.symbol, sellQuantity);
-    const currentPricePerShare = selectedStock.current_price / selectedStock.shares;
-    const saleAmount = currentPricePerShare * sellQuantity;
-
-    // Send notification
-    await sendNotification({
-      customer_phone_number: phoneNumber,
-      amount: saleAmount
-      // stock_symbol: selectedStock.symbol,
-      // shares: sellQuantity.toString() ,
-      // You can add more details if needed
-    });
-
+      const currentPricePerShare =
+        selectedStock.current_price / selectedStock.shares;
+      const saleAmount = currentPricePerShare * sellQuantity;
+      console.log("Sale amount", saleAmount);
+      await sellToken(saleAmount, selectedStock.tokenId);
+      // Send notification
+      if (paymentMethod === "mobile") {
+        console.log("Mobile payment selected");
+        await sendNotification({
+          customer_phone_number: phoneNumber,
+          amount: saleAmount,
+          // stock_symbol: selectedStock.symbol,
+          // shares: sellQuantity.toString() ,
+          // You can add more details if needed
+        });
+        console.log("Payment done");
+      } else {
+        console.log("HBAR option selected");
+        await transferHbar({
+          userAddress: address,
+          amount: saleAmount,
+        });
+        console.log("HBAR sent")
+      }
+      console.log("Beginning to update stock holdings");
+      await updateUserStockHoldings({
+        user_address: address,
+        stock_symbol: selectedStock.symbol,
+        stock_name: selectedStock.name,
+        number_stock: sellQuantity,
+        tokenId: selectedStock.tokenId,
+        operation: "sell",
+      });
+      console.log("Updated holdings");
       toast.success(
-        `Sold ${sellQuantity} shares of ${selectedStock.symbol} for KSH ${saleAmount.toLocaleString("en-KE", { 
-        minimumFractionDigits: 2 
-      })}`
-    );
-      
+        `Sold ${sellQuantity} shares of ${selectedStock.symbol} for KSH ${saleAmount.toLocaleString(
+          "en-KE",
+          {
+            minimumFractionDigits: 2,
+          },
+        )}`,
+      );
+
       // Refresh data
       const [holdings, invested, portfolioValue] = await Promise.all([
         getStockHoldings(address),
-        getInitialInvestment({user_address: address}),
-        getTotalPortfolioValue(address)
+        getInitialInvestment({ user_address: address }),
+        getTotalPortfolioValue(address),
       ]);
-      
+
       setPortfolio(holdings);
       setTotalInvested(invested);
       setCurrentValue(portfolioValue);
     } catch (err) {
       toast.error("Failed to complete sale");
       console.error("Sale error:", err);
-    }
-    finally {
+    } finally {
       setIsSelling(false);
     }
   };
+  const sellToken = async (amount: number, tokenId: string) => {
+    const object = {
+      tokenId: tokenId,
+      amount: amount,
+    };
+    if (!signer) {
+      toast.error("Wallet not connected");
+      return;
+    }
+    if (!accountId) {
+      toast.error("Account ID not found");
+      return;
+    }
+    if (!isHederaSigner(signer)) {
+      toast.error("Invalid signer");
+      return;
+    }
+    const transferTokenTx = new TransferTransaction()
+      .addTokenTransfer(object.tokenId, accountId, -amount) //Fill in the token ID
+      .addTokenTransfer(object.tokenId, "0.0.5785413", amount); //Fill in the token ID and receiver account
 
    // Modify your connection handling UI
    if (isInitialConnectionCheck || status === 'connecting' || status === 'reconnecting') {
@@ -231,7 +294,14 @@ const DashBoardPage = () => {
     );
   }
 
-  if (!isConnected ) {
+    console.log("Signing transfer of coinst transaction");
+    const signedTx = await transferTokenTx.freezeWithSigner(signer);
+    const transactionID = await signedTx.executeWithSigner(signer);
+    const response = await transactionID.getReceiptWithSigner(signer);
+    console.log("Transaction signed and sent", response);
+  };
+
+  if (!isConnected) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Wallet className="h-12 w-12 mb-4 text-gray-400" />
@@ -249,10 +319,11 @@ const DashBoardPage = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
         <p>Just a moment...</p>
         {address && (
-        <p className="text-sm text-gray-500 mt-2">
-          Wallet: {address.substring(0, 6)}...{address.substring(address.length - 4)}
-        </p>
-      )}
+          <p className="text-sm text-gray-500 mt-2">
+            Wallet: {address.substring(0, 6)}...
+            {address.substring(address.length - 4)}
+          </p>
+        )}
       </div>
     );
   }
@@ -263,10 +334,7 @@ const DashBoardPage = () => {
         <div className="bg-red-50 p-4 rounded-lg max-w-md text-center">
           <h2 className="text-red-600 font-bold mb-2">Error Loading Data</h2>
           <p className="text-red-500 mb-4">{error}</p>
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.reload()}
-          >
+          <Button variant="outline" onClick={() => window.location.reload()}>
             Try Again
           </Button>
         </div>
@@ -281,9 +349,16 @@ const DashBoardPage = () => {
         <div className="flex items-center gap-2">
           <Wallet className="h-5 w-5 text-gray-500" />
           <span className="text-sm bg-gray-100 px-3 py-1 rounded-full">
-          {address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : 'Disconnected'}
+            {address
+              ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
+              : "Disconnected"}
           </span>
         </div>
+        {/*
+        <Button variant="outline" onClick={() => sellToken()}>
+          Sell
+        </Button>
+      */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -296,9 +371,14 @@ const DashBoardPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              KSH {currentValue.toLocaleString("en-KE", { minimumFractionDigits: 2 })}
+              KSH{" "}
+              {currentValue.toLocaleString("en-KE", {
+                minimumFractionDigits: 2,
+              })}
             </div>
-            <p className={`text-xs ${profitPercentage >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <p
+              className={`text-xs ${profitPercentage >= 0 ? "text-green-600" : "text-red-600"}`}
+            >
               {profitPercentage >= 0 ? (
                 <ArrowUp className="inline h-3 w-3" />
               ) : (
@@ -306,7 +386,7 @@ const DashBoardPage = () => {
               )}
               {Math.abs(profitPercentage).toFixed(2)}% from total investment
             </p>
-          </CardContent>  
+          </CardContent>
         </Card>
 
         <Card>
@@ -317,13 +397,19 @@ const DashBoardPage = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <div
+              className={`text-2xl font-bold ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}
+            >
               {totalProfit >= 0 ? "+" : ""}KSH{" "}
-              {totalProfit.toLocaleString("en-KE", { minimumFractionDigits: 2 })}
+              {totalProfit.toLocaleString("en-KE", {
+                minimumFractionDigits: 2,
+              })}
             </div>
             <p className="text-xs text-muted-foreground">
               From initial investment of KSH{" "}
-              {totalInvested.toLocaleString("en-KE", { minimumFractionDigits: 2 })}
+              {totalInvested.toLocaleString("en-KE", {
+                minimumFractionDigits: 2,
+              })}
             </p>
           </CardContent>
         </Card>
@@ -336,7 +422,8 @@ const DashBoardPage = () => {
           <CardContent>
             <div className="text-2xl font-bold">{portfolio.length}</div>
             <p className="text-xs text-muted-foreground">
-              Total of {portfolio.reduce((acc, stock) => acc + stock.shares, 0)} shares
+              Total of {portfolio.reduce((acc, stock) => acc + stock.shares, 0)}{" "}
+              shares
             </p>
           </CardContent>
         </Card>
@@ -349,22 +436,21 @@ const DashBoardPage = () => {
             Your portfolio value over time (KSH)
           </CardDescription>
           <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            {(['1w', '1m'] as DateRange[]).map((range) => (
-              <Button
-                key={range}
-                variant={dateRange === range ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setDateRange(range)}
-              >
-                {range.toUpperCase()}
-              </Button>
-            ))}
+            <div className="flex gap-1">
+              {(["1w", "1m"] as DateRange[]).map((range) => (
+                <Button
+                  key={range}
+                  variant={dateRange === range ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setDateRange(range)}
+                >
+                  {range.toUpperCase()}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
         </CardHeader>
         <CardContent>
-
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={performanceData}>
@@ -372,7 +458,10 @@ const DashBoardPage = () => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip
-                  formatter={(value) => [`KSH ${value.toLocaleString()}`, "Value"]}
+                  formatter={(value) => [
+                    `KSH ${value.toLocaleString()}`,
+                    "Value",
+                  ]}
                   labelFormatter={(label) => `Month: ${label}`}
                 />
                 <Line
@@ -417,7 +506,9 @@ const DashBoardPage = () => {
 
                 return (
                   <TableRow key={stock.symbol}>
-                    <TableCell className="font-medium">{stock.symbol}</TableCell>
+                    <TableCell className="font-medium">
+                      {stock.symbol}
+                    </TableCell>
                     <TableCell>{stock.name}</TableCell>
                     <TableCell className="text-right">{stock.shares}</TableCell>
                     <TableCell className="text-right">
@@ -457,7 +548,9 @@ const DashBoardPage = () => {
                         {selectedStock?.symbol === stock.symbol && (
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                              <DialogTitle>Sell {selectedStock.symbol}</DialogTitle>
+                              <DialogTitle>
+                                Sell {selectedStock.symbol}
+                              </DialogTitle>
                               <DialogDescription>
                                 {selectedStock.name} - Current Price: KSH{" "}
                                 {currentPricePerShare.toLocaleString("en-KE", {
@@ -476,10 +569,12 @@ const DashBoardPage = () => {
                                   max={selectedStock.shares}
                                   value={sellQuantity}
                                   onChange={(e) =>
-                                    setSellQuantity(Math.min(
-                                      parseInt(e.target.value) || 1,
-                                      selectedStock.shares
-                                    ))
+                                    setSellQuantity(
+                                      Math.min(
+                                        parseInt(e.target.value) || 1,
+                                        selectedStock.shares,
+                                      ),
+                                    )
                                   }
                                 />
                               </div>
@@ -489,7 +584,9 @@ const DashBoardPage = () => {
                                 </label>
                                 <div className="text-xl font-bold">
                                   KSH{" "}
-                                  {(currentPricePerShare * sellQuantity).toLocaleString("en-KE", {
+                                  {(
+                                    currentPricePerShare * sellQuantity
+                                  ).toLocaleString("en-KE", {
                                     minimumFractionDigits: 2,
                                   })}
                                 </div>
@@ -500,18 +597,26 @@ const DashBoardPage = () => {
                                 </label>
                                 <div className="flex space-x-2">
                                   <Button
-                                    variant={paymentMethod === "mobile" ? "default" : "outline"}
+                                    variant={
+                                      paymentMethod === "mobile"
+                                        ? "default"
+                                        : "outline"
+                                    }
                                     onClick={() => setPaymentMethod("mobile")}
                                     className="flex-1"
                                   >
                                     Mobile Money
                                   </Button>
                                   <Button
-                                    variant={paymentMethod === "eth" ? "default" : "outline"}
+                                    variant={
+                                      paymentMethod === "eth"
+                                        ? "default"
+                                        : "outline"
+                                    }
                                     onClick={() => setPaymentMethod("eth")}
                                     className="flex-1"
                                   >
-                                    ETH
+                                    HBAR
                                   </Button>
                                 </div>
                               </div>
@@ -523,20 +628,24 @@ const DashBoardPage = () => {
                                   <Input
                                     placeholder="+254..."
                                     value={phoneNumber}
-                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    onChange={(e) =>
+                                      setPhoneNumber(e.target.value)
+                                    }
                                   />
                                 </div>
                               )}
                             </div>
                             <DialogFooter>
-                            <Button onClick={handleSell} disabled={isSelling}>
-  {isSelling ? (
-    <div className="flex items-center gap-2">
-      <Loader2 className="h-4 w-4 animate-spin" />
-      Processing...
-    </div>
-  ) : "Confirm Sale"}
-</Button>
+                              <Button onClick={handleSell} disabled={isSelling}>
+                                {isSelling ? (
+                                  <div className="flex items-center gap-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Processing...
+                                  </div>
+                                ) : (
+                                  "Confirm Sale"
+                                )}
+                              </Button>
                             </DialogFooter>
                           </DialogContent>
                         )}

@@ -10,12 +10,14 @@ declare global {
       PASS_KEY: string;
       URL: string;
       PAYSTACK_URL: string;
-      PAYSTACK_SECRET: string;
+      LIVE_PAYSTACK_SECRET_KEY: string;
+      TEST_PAYSTACK_SECRET_KEY: string;
       WHATSAPP_TOKEN: string;
       WHATSAPP_PHONE_ID: string;
       NOTIFIER_NUMBER: string;
       ACCOUNTID: string;
       PRIVATEKEY: string;
+      CONVERSION_KEY: string;
     }
   }
 }

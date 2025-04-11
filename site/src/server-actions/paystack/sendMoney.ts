@@ -26,7 +26,14 @@ interface TransferReference {
 }
 
 async function getRecepientCode(args: CreateTransferReceipt): Promise<string> {
-    if (!process.env.PAYSTACK_SECRET) {
+    let paystack_secret_key: string = "";
+    if (process.env.NODE_ENV === "production") {
+      paystack_secret_key = process.env.LIVE_PAYSTACK_SECRET_KEY
+    } else {
+      paystack_secret_key = process.env.TEST_PAYSTACK_SECRET_KEY
+    }
+    
+    if (!paystack_secret_key) {
         console.log("Set paystack secret in env variables");
         throw new MyError(Errors.INVALID_SETUP);
     }
@@ -40,7 +47,7 @@ async function getRecepientCode(args: CreateTransferReceipt): Promise<string> {
             currency: "KES"
         }, {
             headers: {
-                Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
+                Authorization: `Bearer ${paystack_secret_key}`
             }
         });
 
@@ -99,7 +106,14 @@ async function generateTransferReference(args: CreateTransferReference, retry?: 
 
 export default async function sendMoneyTransfer(args: SendMoneyTransfer) {
     try {
-        if (!process.env.PAYSTACK_SECRET) {
+        let paystack_secret_key: string = "";
+        if (process.env.NODE_ENV === "production") {
+          paystack_secret_key = process.env.LIVE_PAYSTACK_SECRET_KEY
+        } else {
+          paystack_secret_key = process.env.TEST_PAYSTACK_SECRET_KEY
+        }
+
+        if (!paystack_secret_key) {
             console.log("Set paystack secret in env variables");
             throw new MyError(Errors.INVALID_SETUP);
         }
@@ -107,7 +121,7 @@ export default async function sendMoneyTransfer(args: SendMoneyTransfer) {
         const transfer_reference = await generateTransferReference(args);
         await axios.post("https://api.paystack.co/transfer", transfer_reference, {
             headers :{
-                Authorization: `Bearer ${process.env.PAYSTACK_SECRET}`
+                Authorization: `Bearer ${paystack_secret_key}`
             }
         })
 

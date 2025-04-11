@@ -6,8 +6,11 @@ import {
     Client,
     TokenCreateTransaction,
     TokenType, TransferTransaction, TokenInfoQuery,
-    TokenInfo
+    TokenInfo,
+    Hbar
 } from "@hashgraph/sdk";
+import "../../envConfig";
+
 import 'dotenv/config'
 interface CreateStockTokenArgs {
     symbol: string;
@@ -23,8 +26,8 @@ interface BuyTokenArgs {
 export class SmartContract {
     private accountID: string;
     private privateKey: string;
-    
-    constructor() { 
+
+    constructor() {
         if (!process.env.ACCOUNTID || !process.env.PRIVATEKEY) {
             console.log("Set PRIVATEKEY and ACCOUNTID in env variables");
             throw new MyError(Errors.INVALID_SETUP);
@@ -78,8 +81,9 @@ export class SmartContract {
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
 
             //Create the transfer transaction
-            const txTransfer = await new TransferTransaction()
+            const txTransfer = new TransferTransaction()
                 .addTokenTransfer(args.tokenId, args.userWalletAddress, args.amount) //Fill in the token ID 
+                .addTokenTransfer(args.tokenId, this.accountID, -1 * args.amount)
                 .freezeWith(client);
 
             //Sign with the sender account private key
@@ -100,6 +104,38 @@ export class SmartContract {
             if (client) client.close();
         }
     }
+    async transferHbar(args: { userAddress: string, amount: number}) {
+        const client: Client = Client.forTestnet();
+        try {
+            // Your account ID and private key from string value
+            const MY_ACCOUNT_ID = AccountId.fromString(this.accountID);
+            const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
+            //Set the operator with the account ID and private key
+            client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
+            console.log("Account ID =>", this.accountID);
+            const txTransfer = new TransferTransaction()
+                .addHbarTransfer(args.userAddress, new Hbar(args.amount))
+                .addHbarTransfer(this.accountID, new Hbar(-1 * args.amount))
+                .freezeWith(client);
+
+            //Sign with the sender account private key
+            const signTxTransfer = await txTransfer.sign(PrivateKey.fromStringED25519(process.env.PRIVATEKEY!));
+
+            //Sign with the client operator private key and submit to a Hedera network
+            const txTransferResponse = await signTxTransfer.execute(client);
+
+            //Get the Transaction ID
+            const txTransferId = txTransferResponse.transactionId.toString();
+            return txTransferId;
+        }
+        catch (error) {
+            console.error("Error transferring Hbar:", error);
+            throw error;
+        }
+        finally {
+            if (client) client.close();
+        }
+    }
     async sellStock(args: BuyTokenArgs): Promise<string> {
         const client: Client = Client.forTestnet();
         try {
@@ -111,7 +147,8 @@ export class SmartContract {
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
 
             const txTransfer = await new TransferTransaction()
-                .addTokenTransfer(args.tokenId, args.userWalletAddress, -args.amount) //Fill in the token ID 
+                .addTokenTransfer(args.tokenId, args.userWalletAddress, -args.amount)
+                .addTokenTransfer(args.tokenId, this.accountID, args.amount) //Fill in the token ID 
                 .freezeWith(client);
 
             //Sign with the sender account private key
@@ -140,7 +177,7 @@ export class SmartContract {
             const MY_PRIVATE_KEY = PrivateKey.fromStringED25519(this.privateKey);
             //Set the operator with the account ID and private key
             client.setOperator(MY_ACCOUNT_ID, MY_PRIVATE_KEY);
-            
+
             const tokenInfoQuery = new TokenInfoQuery()
                 .setTokenId(tokenId);
             //Sign with the client operator private key, submit the query to the network and get the token supply
