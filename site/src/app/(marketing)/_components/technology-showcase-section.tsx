@@ -40,8 +40,8 @@ export function TechnologyShowcaseSection(/*{ scrollY }: { scrollY: number }*/) 
     <motion.section
       initial={{ opacity: 0 }}
       animate={{
-        opacity: scrollY > 1400 ? 1 : 0,
-        y: scrollY > 1400 ? 0 : 30,
+        opacity: scrollY > 1300 ? 1 : 0,
+        y: scrollY > 1300 ? 0 : 30,
       }}
       transition={{ duration: 0.6 }}
       className="z-20 py-20 px-8"

@@ -1,4 +1,3 @@
-import { BackgroundBeams } from "@/components/ui/background-beams";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,14 +16,9 @@ import {
 } from "@tabler/icons-react";
 import { TrendingUp } from "lucide-react";
 import Link from "next/link";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Footer } from "./_components/footer";
 import { TechnologyShowcaseSection } from "./_components/technology-showcase-section";
+import { TrustSection } from "./_components/trust-section";
 export default function LandingPage() {
   const words = [
     {
@@ -80,7 +74,6 @@ export default function LandingPage() {
   };
   return (
     <div className="relative  grid justify-items-center ">
-      {/* Hero Section */} <BackgroundBeams />
       <section className="pt-32 px-8  w-full relative pb-12 md:pt-56 lg:min-h-screen md:pb-20">
         <div className="grid gap-8   items-center">
           <div className="space-y-6 w-full ">
@@ -201,48 +194,8 @@ export default function LandingPage() {
           </Card>
         </div>
       </section>
-      {/*FAQ Section*/}
-      <section className=" py-12 md:py-20 px-8  w-full relative ">
-        <h2 className="text-3xl lg:text-4xl   font-bold text-center mb-12">
-          Frequently Asked Questions
-        </h2>
-        <div className="w-full bg-white rounded-sm p-2 border border-primary/10 rounded-xl px-4 ">
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>How do I start investing?</AccordionTrigger>
-              <AccordionContent>
-                Connect your Orion wallet, browse our marketplace for stocks,
-                and purchase using ETH or mobile money. It&apos;s that simple!
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>
-                What payment methods are accepted?
-              </AccordionTrigger>
-              <AccordionContent>
-                We currently accept ETH and various mobile money providers. More
-                payment options will be added soon.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>
-                How do I cash out my investments?
-              </AccordionTrigger>
-              <AccordionContent>
-                Go to your dashboard, select the stocks you want to sell, and
-                choose your preferred withdrawal method. Funds will be
-                transferred within 24 hours.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-4">
-              <AccordionTrigger>Are there any fees?</AccordionTrigger>
-              <AccordionContent>
-                There are no hidden fees or monthly charges.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </section>
+      {/*Trust Section*/}
+      <TrustSection />
       {/*Technology showcase section*/}
       <TechnologyShowcaseSection />
       <Footer />
