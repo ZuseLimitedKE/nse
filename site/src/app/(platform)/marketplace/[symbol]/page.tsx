@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUp, ArrowDown, Info } from "lucide-react";
 import { StockChart } from "../_components/StockChart";
 import { StockTrades } from "../_components/StockTrades";
-import StockTradingForm from "../_components/StockTradingForm";
 import StockChartControls from "../_components/StockChartControls";
 import getPriceChartData from "@/server-actions/stocks/get_price_chart_data";
 import { getStockBySymbol } from "@/server-actions/stocks/getStocks";
+import { BuyStocksForm } from "../_components/buy-stocks-form";
 
 //interface for data returned by getStockBySymbol
 // interface stockSymbolData {
@@ -181,14 +181,11 @@ export default async function StockDetail({
           </div>
 
           <div>
-            <StockTradingForm
-              stock={{
-                name: stockSymbol.name,
-                symbol: stockSymbol.symbol,
-                exchange: stock.exchange,
-                price: stockSymbol.price,
-              }}
-            />
+            <Card className="sticky top-20">
+              <CardContent>
+                <BuyStocksForm entry={stockSymbol} />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
