@@ -194,8 +194,7 @@ const DashBoardPage = () => {
       const currentPricePerShare =
         selectedStock.current_price / selectedStock.shares;
       const saleAmount = currentPricePerShare * sellQuantity;
-      console.log("Sale amount", saleAmount);
-      await sellToken(saleAmount, selectedStock.tokenId);
+      await sellToken(sellQuantity, selectedStock.tokenId);
       // Send notification
       if (paymentMethod === "mobile") {
         console.log("Mobile payment selected");
