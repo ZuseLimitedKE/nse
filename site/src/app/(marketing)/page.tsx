@@ -23,6 +23,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Footer } from "./_components/footer";
+import { TechnologyShowcaseSection } from "./_components/technology-showcase-section";
 export default function LandingPage() {
   const words = [
     {
@@ -54,6 +56,28 @@ export default function LandingPage() {
       className: "text-primary",
     },
   ];
+
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 },
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
   return (
     <div className="relative  grid justify-items-center ">
       {/* Hero Section */} <BackgroundBeams />
@@ -219,6 +243,9 @@ export default function LandingPage() {
           </Accordion>
         </div>
       </section>
+      {/*Technology showcase section*/}
+      <TechnologyShowcaseSection />
+      <Footer />
     </div>
   );
 }
