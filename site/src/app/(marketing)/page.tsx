@@ -1,24 +1,12 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
-import {
-  IconCash,
-  IconChartBar,
-  IconFileDollar,
-  IconTimeline,
-} from "@tabler/icons-react";
+import { IconChartBar } from "@tabler/icons-react";
 import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Footer } from "./_components/footer";
 import { TechnologyShowcaseSection } from "./_components/technology-showcase-section";
 import { TrustSection } from "./_components/trust-section";
+import { FeaturesSection } from "./_components/features";
 export default function LandingPage() {
   const words = [
     {
@@ -52,26 +40,26 @@ export default function LandingPage() {
   ];
 
   // Animation variants
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1 },
-  };
-
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
+  // const container = {
+  //   hidden: { opacity: 0 },
+  //   show: {
+  //     opacity: 1,
+  //     transition: {
+  //       staggerChildren: 0.1,
+  //       delayChildren: 0.3,
+  //     },
+  //   },
+  // };
+  //
+  // const item = {
+  //   hidden: { y: 20, opacity: 0 },
+  //   show: { y: 0, opacity: 1 },
+  // };
+  //
+  // const fadeIn = {
+  //   hidden: { opacity: 0, y: 20 },
+  //   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  // };
   return (
     <div className="relative  grid justify-items-center ">
       <section className="pt-32 px-8  w-full relative pb-12 md:pt-56 lg:min-h-screen md:pb-20">
@@ -116,84 +104,8 @@ export default function LandingPage() {
         </div>
       </section>
       {/* Features Section */}
-      <section className=" z-20 py-12 md:py-20 px-8">
-        <h2 className="text-3xl lg:text-4xl  font-bold text-center mb-12">
-          How It Works
-        </h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="border-primary/10">
-            <CardHeader>
-              <IconTimeline className="h-10 w-10 text-primary mb-4" />
-              <CardTitle>Browse Stocks</CardTitle>
-              <CardDescription>
-                Explore our selection of available stocks
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                Browse through a curated selection of stocks from various
-                markets and sectors.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link
-                href="/marketplace"
-                className="hover:underline text-sm hover:text-primary text-muted-foreground"
-              >
-                View Marketplace
-              </Link>
-            </CardFooter>
-          </Card>
+      <FeaturesSection />
 
-          <Card className="shadow">
-            <CardHeader>
-              <IconFileDollar className="h-10 w-10 text-primary mb-4" />
-              <CardTitle>Buy Stocks</CardTitle>
-              <CardDescription>
-                Purchase stocks using ETH or mobile money
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                Choose from a wide range of stocks and pay with your preferred
-                payment method.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link
-                className="hover:underline text-sm hover:text-primary text-muted-foreground"
-                href="/marketplace"
-              >
-                View Marketplace
-              </Link>
-            </CardFooter>
-          </Card>
-
-          <Card className="shadow">
-            <CardHeader>
-              <IconCash className="h-10 w-10 text-primary mb-4" />
-              <CardTitle>Sell & Cash Out</CardTitle>
-              <CardDescription>
-                Sell your stocks and receive payment
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                Sell your stocks anytime and receive funds via mobile money or
-                ETH to your wallet.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link
-                className="hover:underline text-sm hover:text-primary text-muted-foreground"
-                href="/dashboard"
-              >
-                Manage Portfolio
-              </Link>
-            </CardFooter>
-          </Card>
-        </div>
-      </section>
       {/*Trust Section*/}
       <TrustSection />
       {/*Technology showcase section*/}
