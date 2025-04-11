@@ -190,7 +190,6 @@ const DashBoardPage = () => {
 
     try {
       // Implement sell logic here
-      // await sellStock(address, selectedStock.symbol, sellQuantity);
       const currentPricePerShare =
         selectedStock.current_price / selectedStock.shares;
       const saleAmount = currentPricePerShare * sellQuantity;
@@ -201,9 +200,6 @@ const DashBoardPage = () => {
         await sendNotification({
           customer_phone_number: phoneNumber,
           amount: saleAmount,
-          // stock_symbol: selectedStock.symbol,
-          // shares: sellQuantity.toString() ,
-          // You can add more details if needed
         });
         console.log("Payment done");
       } else {
@@ -308,7 +304,7 @@ const DashBoardPage = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-4">
-        <div className="bg-red-50 p-4 rounded-lg max-w-md text-center">
+        <div className="bg-red-50 p-4 rounded-lg max-w-md text-center">g
           <h2 className="text-red-600 font-bold mb-2">Error Loading Data</h2>
           <p className="text-red-500 mb-4">{error}</p>
           <Button variant="outline" onClick={() => window.location.reload()}>
