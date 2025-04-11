@@ -84,7 +84,9 @@ export function BuyStocksForm({
       stock_symbol: entry.symbol,
     },
   });
-
+  const rawAmount = entry.price * quantity;
+  const roundedAmount = Math.ceil(rawAmount);
+  const commission = roundedAmount - rawAmount;
   useEffect(() => {
     // Calculate token amount based on quantity
     if (quantity > 0) {
@@ -96,8 +98,7 @@ export function BuyStocksForm({
 
   const onSubmit = async (data: FormValues) => {
     const finalAmount = Math.ceil(entry.price * quantity); // Calculate amount dynamically
-    data.amount = finalAmount; // Override the amount field
-
+    data.amount = finalAmount;
     if (!accountId || !isConnected) {
       toast.warning("you need to connect your wallet in order to proceed");
       return;
@@ -315,6 +316,17 @@ export function BuyStocksForm({
               KES{" "}
               {quantity
                 ? (entry.price * quantity).toLocaleString("en-KE", {
+                  minimumFractionDigits: 2,
+                })
+                : 0}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-gray-500">Commision</span>
+            <span className="text-sm w-64 text-right font-semibold overflow-hidden">
+              KES{" "}
+              {quantity
+                ? commission.toLocaleString("en-KE", {
                   minimumFractionDigits: 2,
                 })
                 : 0}
