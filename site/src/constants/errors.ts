@@ -53,5 +53,6 @@ export enum Errors {
     NOT_GET_REFERENCE_CODE_PAYSTACK = "Could not reference code from paystack",
     NOT_SEND_TOKENS_USER = "Could not send tokens to user",
     NOT_GET_PRICES = "Could not get prices of stocks over time",
+    NOT_GET_ASSOCIATION_HEDERA = "Could not get token association from hedera",
     UNKNOWN = "Unkown error",
 }
