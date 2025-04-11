@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-// import { useAppKitAccount } from "@reown/appkit/react";
 import getGraphData from "@/server-actions/dashboard/graph";
 import { sendNotification } from "@/server-actions/sell/notify";
 import { Loader2 } from "lucide-react";
@@ -83,7 +82,6 @@ function isHederaSigner(signer: HWBridgeSigner): signer is HederaSignerType {
   return (signer as HederaSignerType).topic !== undefined;
 }
 const DashBoardPage = () => {
-  // const { isConnected, address, status } = useAppKitAccount();
   const { isConnected } = useWallet();
   const { data: address } = useAccountId();
   const [isSelling, setIsSelling] = useState(false);
@@ -100,18 +98,10 @@ const DashBoardPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("mobile");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>("1w");
-  // const [isInitialConnectionCheck, setIsInitialConnectionCheck] =useState(true);
   const { signer } = useWallet();
   const { data: accountId } = useAccountId();
 
   useEffect(() => {
-    // Skip if we're still checking initial connection
-    // if (isInitialConnectionCheck) {
-    //   if (status !== "connecting") {
-    //     setIsInitialConnectionCheck(false);
-    //   }
-    //   return;
-    // }
     // Only proceed if wallet is connected and we have an address
     if (isConnected && address /*&& status === "connected"*/) {
       const fetchData = async () => {
@@ -281,18 +271,6 @@ const DashBoardPage = () => {
     const transferTokenTx = new TransferTransaction()
       .addTokenTransfer(object.tokenId, accountId, -amount) //Fill in the token ID
       .addTokenTransfer(object.tokenId, "0.0.5785413", amount); //Fill in the token ID and receiver account
-
-   // Modify your connection handling UI
-   if (isInitialConnectionCheck || status === 'connecting' || status === 'reconnecting') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p>
-          {status === 'reconnecting' ? 'Reconnecting to wallet...' : 'Loading your portfolio...'}
-        </p>
-      </div>
-    );
-  }
 
     console.log("Signing transfer of coinst transaction");
     const signedTx = await transferTokenTx.freezeWithSigner(signer);
