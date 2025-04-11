@@ -28,26 +28,23 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { IconCash } from "@tabler/icons-react";
 import { IconShoppingCart } from "@tabler/icons-react";
-// import { sendSTKPush } from "@/server-actions/mpesa/send-stk-push";
 import { Label } from "@/components/ui/label";
 import { store_stock_purchase } from "@/server-actions/buy/stock_holdings";
-// import { useAppKitAccount } from "@reown/appkit/react";
 import {
   HederaSignerType,
   HWBridgeSigner,
   useAccountId,
   useWallet,
 } from "@buidlerlabs/hashgraph-react-wallets";
-// import markRequestAsPaid from "@/server-actions/mpesa/markPaid";
 import { getIfUserHasOwnedStock } from "@/server-actions/stocks/get_user_own_stock";
 import { TokenAssociateTransaction } from "@hashgraph/sdk";
-// import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
 // paystack hook
 import { usePaystack } from "@/hooks/use-paystack";
 import { makePaymentRequest } from "@/server-actions/paystack/makePaymentRequest";
 import { Errors } from "@/constants/errors";
 import sendTokensToUser from "@/server-actions/contracts/send_token_user";
 import updateUserStockHoldings from "@/server-actions/stocks/update_stock_holdings";
+import { useEffect } from "react";
 // Defines the form value type from the schema
 const paymentSchema = z.object({
   email: z.string().email("enter a valid email address"),
@@ -69,6 +66,8 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
   const [quantity, setQuantity] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [tokenAmount, setTokenAmount] = useState("0");
+
   // const { isConnected, address } = useAppKitAccount();
   const { isConnected } = useWallet();
   const { data: accountId } = useAccountId();
@@ -84,16 +83,21 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
     },
     // mode: "onSubmit",
   });
+  const handlePercentageClick = (percentage: number) => {
+    form.setValue("amount", Math.ceil((entry.price * percentage) / 100));
+  };
+  useEffect(() => {
+    const amount = form.getValues("amount");
 
-  // Update the form value when quantity changes
-  // useEffect(() => {
-  //   form.setValue("amount", Math.ceil(entry.price * quantity), {
-  //     shouldValidate: true,
-  //     shouldDirty: true,
-  //   });
-  //   console.log("effect ran");
-  // }, [quantity, entry.price, form.setValue]);
-  // Handle form submission
+    // Calculate token amount based on KES amount
+    if (amount) {
+      const tokens = amount / entry.price;
+      setTokenAmount(tokens.toFixed(2));
+    } else {
+      setTokenAmount("0");
+    }
+  }, [form, entry.price]);
+
   const onSubmit = async (data: FormValues) => {
     const finalAmount = Math.ceil(entry.price * quantity); // Calculate amount dynamically
     data.amount = finalAmount; // Override the amount field
@@ -111,10 +115,6 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
     setIsSubmitting(true);
 
     try {
-      // const mpesa_request_id = await sendSTKPush({
-      //   ...data,
-      //   amount: finalAmount,
-      // });
       const transaction = await makePaymentRequest(
         data.email,
         finalAmount * 100,
@@ -217,7 +217,7 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
             setIsSubmitting(false);
           }
         },
-        onClose: function () {
+        onClose: function() {
           toast.info("Payment cancelled or window closed");
           setIsSubmitting(false);
         },
@@ -237,13 +237,6 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
     });
   };
 
-  // Log form state changes for debugging
-  // useEffect(() => {
-  //   const subscription = form.watch((value) => {
-  //     console.log("Form values changed:", value);
-  //   });
-  //   return () => subscription.unsubscribe();
-  // }, [form]);
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
@@ -272,12 +265,16 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
               </Label>
               <Input
                 id="quantity"
+                max={100000}
                 type="number"
                 value={quantity}
                 onChange={(e) => {
                   setQuantity(parseInt(e.target.value));
                 }}
               />
+              <FormDescription className="text-xs">
+                Enter the quantity of stocks you want you buy
+              </FormDescription>
             </div>
 
             <FormField
@@ -295,37 +292,73 @@ export function BuyStocksPopup({ entry }: { entry: StockData }) {
                       }}
                     />
                   </FormControl>
-                  <FormDescription>Enter your email address</FormDescription>
+                  <FormDescription className="text-xs">
+                    Enter your email address
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <div className="grid gap-2">
-              <label className="text-sm font-medium">Total Amount</label>
-              <div className="text-xl font-bold overflow-hidden">
-                KSH{" "}
-                {quantity
-                  ? (entry.price * quantity).toLocaleString("en-KE", {
-                      minimumFractionDigits: 2,
-                    })
-                  : 0}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                You will Receive ({entry.name})
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 sm:text-sm">
+                    {entry.symbol}
+                  </span>
+                </div>
+                <Input
+                  type="text"
+                  className="pl-16"
+                  value={tokenAmount}
+                  readOnly
+                />
               </div>
             </div>
 
-            <div className="mt-4">
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-500">Price Per Share</span>
+                <span className="text-sm font-semibold ">
+                  KES {entry.price}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-500"> Your Total</span>
+                <span className="text-sm w-64 text-right   font-semibold overflow-hidden">
+                  KES{" "}
+                  {quantity
+                    ? (entry.price * quantity).toLocaleString("en-KE", {
+                      minimumFractionDigits: 2,
+                    })
+                    : 0}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 w-full border">
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full font-semibold md:w-auto"
+                size="lg"
+                className="w-full font-semibold text-base "
               >
                 {isSubmitting ? (
-                  <Spinner className="mr-1 h-4 w-4 text-white" />
+                  <Spinner className="mr-1 h-6 w-6 text-white" />
                 ) : (
-                  <IconCash className="mr-1 h-4 w-4" strokeWidth={2} />
+                  <IconCash className="mr-1 h-6 w-6 " strokeWidth={2} />
                 )}
-                {isSubmitting ? "Processing" : "Pay"}
+                {isSubmitting ? "Processing" : `Buy ${entry.symbol}-NSE`}
               </Button>
+            </div>
+            <div className="text-xs text-gray-500">
+              <p>
+                By submitting this order, you agree to our Terms of Service and
+                Privacy Policy. Market conditions may affect final settlement
+                price.
+              </p>
             </div>
           </form>
         </Form>
