@@ -213,7 +213,7 @@ const DashBoardPage = () => {
           userAddress: address,
           amount: saleAmount,
         });
-        console.log("HBAR sent")
+        console.log("HBAR sent");
       }
       console.log("Beginning to update stock holdings");
       await updateUserStockHoldings({
@@ -271,7 +271,7 @@ const DashBoardPage = () => {
     const transferTokenTx = new TransferTransaction()
       .addTokenTransfer(object.tokenId, accountId, -amount) //Fill in the token ID
       .addTokenTransfer(object.tokenId, "0.0.5785413", amount); //Fill in the token ID and receiver account
-
+    
     console.log("Signing transfer of coinst transaction");
     const signedTx = await transferTokenTx.freezeWithSigner(signer);
     const transactionID = await signedTx.executeWithSigner(signer);
@@ -294,7 +294,7 @@ const DashBoardPage = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
         <p>Just a moment...</p>
         {address && (
           <p className="text-sm text-gray-500 mt-2">
